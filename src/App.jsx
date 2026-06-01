@@ -69,6 +69,14 @@ export default function App() {
   const [userRole, setUserRole] = useState(() => {
     return localStorage.getItem('propdeal_user_role') || 'Agent';
   });
+
+  const [userId, setUserId] = useState(() => {
+    return localStorage.getItem('propdeal_user_id') || '';
+  });
+
+  const [userAvatar, setUserAvatar] = useState(() => {
+    return localStorage.getItem('propdeal_user_avatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop';
+  });
   
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
@@ -182,20 +190,30 @@ export default function App() {
      ============================================================================ */
   const handleLoginSuccess = (userObj) => {
     localStorage.setItem('propdeal_auth', 'true');
+    localStorage.setItem('propdeal_user_id', userObj.id);
     localStorage.setItem('propdeal_user_name', userObj.fullName);
     localStorage.setItem('propdeal_user_role', userObj.role);
+    localStorage.setItem('propdeal_user_avatar', userObj.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
+    
+    setUserId(userObj.id);
     setUserName(userObj.fullName);
     setUserRole(userObj.role);
+    setUserAvatar(userObj.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('propdeal_auth');
+    localStorage.removeItem('propdeal_user_id');
     localStorage.removeItem('propdeal_user_name');
     localStorage.removeItem('propdeal_user_role');
+    localStorage.removeItem('propdeal_user_avatar');
+    
     setIsAuthenticated(false);
+    setUserId('');
     setUserName('');
     setUserRole('Agent');
+    setUserAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
     setProperties([]);
     setLeads([]);
     setAgents([]);
@@ -527,6 +545,12 @@ export default function App() {
           notificationCount={3}
           userName={userName}
           userRole={userRole}
+          userId={userId}
+          userAvatar={userAvatar}
+          onUpdateAvatar={(newAvatar) => {
+            localStorage.setItem('propdeal_user_avatar', newAvatar);
+            setUserAvatar(newAvatar);
+          }}
           onLogout={handleLogout}
         />
 

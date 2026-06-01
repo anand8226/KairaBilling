@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Bell, Calendar, Menu, LogOut, Shield } from 'lucide-react';
+import { Search, Bell, Calendar, Menu, LogOut, Shield, Camera, X, Check } from 'lucide-react';
 
 export default function Header({ 
   activeTab, 
@@ -10,9 +10,59 @@ export default function Header({
   notificationCount = 3,
   userName = 'Admin',
   userRole = 'Agent',
+  userId = '',
+  userAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
+  onUpdateAvatar,
   onLogout 
 }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(userAvatar);
+  const [customUrl, setCustomUrl] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const PRESET_AVATARS = [
+    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=150&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop"
+  ];
+
+  const handleSaveAvatar = async () => {
+    let finalAvatar = selectedAvatar;
+    if (customUrl.trim() !== '') {
+      finalAvatar = customUrl.trim();
+    }
+
+    setSaving(true);
+    try {
+      if (userId) {
+        const response = await fetch(`http://127.0.0.1:5000/api/users/${userId}/profile-image`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profileImage: finalAvatar })
+        });
+        
+        if (response.ok) {
+          onUpdateAvatar(finalAvatar);
+          alert("✅ Profile picture has been successfully updated in MySQL database!");
+        } else {
+          throw new Error("Failed to save on server");
+        }
+      } else {
+        onUpdateAvatar(finalAvatar);
+      }
+    } catch (e) {
+      console.warn("⚠️ API offline or error. Updating locally inside local storage fallback.");
+      onUpdateAvatar(finalAvatar);
+    } finally {
+      setSaving(false);
+      setAvatarModalOpen(false);
+      setCustomUrl('');
+    }
+  };
 
   // Format current date like "21 May 2024, Tuesday"
   const getFormattedDate = () => {
@@ -103,7 +153,7 @@ export default function Header({
           style={{ position: 'relative' }}
         >
           <img 
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" 
+            src={userAvatar} 
             alt="Profile Avatar" 
           />
           <div className="header-profile-info">
@@ -144,6 +194,35 @@ export default function Header({
                 <Shield size={12} />
                 Access Control
               </div>
+
+              {/* Edit Profile Pic Trigger button */}
+              <button
+                type="button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  width: '100%',
+                  padding: '12px',
+                  fontSize: '13px',
+                  textAlign: 'left',
+                  color: 'var(--primary)',
+                  fontWeight: '600',
+                  background: 'transparent',
+                  borderBottom: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedAvatar(userAvatar);
+                  setAvatarModalOpen(true);
+                  setProfileMenuOpen(false);
+                }}
+              >
+                <Camera size={14} />
+                Edit Profile Pic
+              </button>
+
               <button
                 type="button"
                 style={{
@@ -156,7 +235,8 @@ export default function Header({
                   textAlign: 'left',
                   color: 'var(--danger-text)',
                   fontWeight: '600',
-                  background: 'transparent'
+                  background: 'transparent',
+                  cursor: 'pointer'
                 }}
                 onClick={onLogout}
               >
@@ -168,13 +248,113 @@ export default function Header({
         </div>
       </div>
 
-      {/* Date row in header bottom */}
-      <div className="header-date-row">
-        <div className="header-date-badge">
-          <Calendar />
-          <span>{getFormattedDate()}</span>
+      {/* -------------------------------------------------------------
+        * PROFILE PIC UPDATE GLASSMORPHIC MODAL
+        * ------------------------------------------------------------- */}
+      {avatarModalOpen && (
+        <div className="modal-overlay" style={{ zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setAvatarModalOpen(false)}>
+          <div className="modal-container" style={{ maxWidth: '400px', padding: '24px', background: '#fff', borderRadius: '16px', boxShadow: 'var(--shadow-lg)' }} onClick={(e) => e.stopPropagation()}>
+            
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Camera size={18} />
+                Update Profile Picture
+              </h3>
+              <button type="button" onClick={() => setAvatarModalOpen(false)} style={{ color: 'var(--text-light)', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              {/* Presets Title */}
+              <label style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)' }}>Choose Preset Avatar</label>
+              
+              {/* Grid presets */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                {PRESET_AVATARS.map((preset, index) => (
+                  <div 
+                    key={index} 
+                    style={{ 
+                      position: 'relative', 
+                      height: '80px', 
+                      borderRadius: '12px', 
+                      overflow: 'hidden', 
+                      cursor: 'pointer',
+                      border: selectedAvatar === preset ? '3px solid var(--primary)' : '2px solid transparent',
+                      boxShadow: selectedAvatar === preset ? '0 4px 10px rgba(30,111,253,0.3)' : 'none',
+                      transition: 'all 0.2s'
+                    }}
+                    onClick={() => {
+                      setSelectedAvatar(preset);
+                      setCustomUrl('');
+                    }}
+                  >
+                    <img src={preset} alt={`Preset ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {selectedAvatar === preset && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        background: 'var(--primary)',
+                        color: '#fff',
+                        borderRadius: '50%',
+                        width: '18px',
+                        height: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: 'var(--shadow-sm)'
+                      }}>
+                        <Check size={10} strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Custom URL Input */}
+              <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '16px' }}>
+                <label htmlFor="custom-avatar-input" style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                  Or Paste Custom Image URL
+                </label>
+                <input 
+                  type="text" 
+                  id="custom-avatar-input"
+                  className="form-input" 
+                  style={{ fontSize: '12px', height: '36px' }}
+                  placeholder="https://images.unsplash.com/photo-..."
+                  value={customUrl}
+                  onChange={(e) => {
+                    setCustomUrl(e.target.value);
+                    setSelectedAvatar('');
+                  }}
+                />
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '14px' }}>
+              <button type="button" className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600' }} onClick={() => setAvatarModalOpen(false)}>
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary" 
+                style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '600', background: 'var(--primary)' }}
+                onClick={handleSaveAvatar}
+                disabled={saving}
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

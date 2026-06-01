@@ -921,6 +921,138 @@ app.post('/api/deals', async (req, res) => {
   }
 });
 
+// 15. User Management: Edit Profile Image Avatar
+app.put('/api/users/:id/profile-image', async (req, res) => {
+  const { id } = req.params;
+  const { profileImage } = req.body;
+  if (!profileImage) {
+    return res.status(400).json({ error: 'Profile image URL is required.' });
+  }
+
+  try {
+    if (useMySQL) {
+      await dbPool.query('UPDATE Users SET ProfileImage = ? WHERE UserId = ?', [profileImage, id]);
+      res.json({ success: true, profileImage });
+    } else {
+      const users = readJSON(localUsersFile);
+      const updated = users.map(u => String(u.userId) === String(id) ? { ...u, profileImage } : u);
+      writeJSON(localUsersFile, updated);
+      res.json({ success: true, profileImage });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Could not update profile image.' });
+  }
+});
+
+// Cache map to store pending OTPs with expiry
+const otpCache = {};
+
+// 16. Auth: Forgot Password Request (Generate & Dispatch 6-Digit OTP)
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { phoneNumber } = req.body;
+  if (!phoneNumber) {
+    return res.status(400).json({ error: 'Phone number is required.' });
+  }
+
+  try {
+    // Check if user exists in active databases
+    let userExists = false;
+    if (useMySQL) {
+      const [rows] = await dbPool.query('SELECT * FROM Users WHERE PhoneNumber = ?', [phoneNumber]);
+      userExists = rows.length > 0;
+    } else {
+      const users = readJSON(localUsersFile);
+      userExists = users.some(u => u.phoneNumber === phoneNumber);
+    }
+
+    // Default seeded local credential fallback fallback
+    const isMockRegistered = phoneNumber === '9999999999' || phoneNumber === '8888888888' || phoneNumber === '7777777777' || phoneNumber === '7777777778';
+    
+    if (!userExists && !isMockRegistered) {
+      return res.status(400).json({ error: 'Bhai, ye phone number system me registered nahi hai.' });
+    }
+
+    // Generate random 6-digit OTP verification code
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    otpCache[phoneNumber] = {
+      otp,
+      expiresAt: Date.now() + 5 * 60 * 1000 // expires in 5 minutes
+    };
+
+    // Print OTP in terminal logs for complete free local demonstration
+    console.log(`\n==================================================`);
+    console.log(`🔐 [DEMO MODE OTP SENDER]`);
+    console.log(`To Phone Number: +91 ${phoneNumber}`);
+    console.log(`Your 6-Digit OTP Verification Code is: ${otp}`);
+    console.log(`Expires in 5 minutes.`);
+    console.log(`==================================================\n`);
+
+    // Optionally dispatch OTP via Fast2SMS if API key is configured
+    if (process.env.FAST2SMS_API_KEY) {
+      try {
+        const smsUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${process.env.FAST2SMS_API_KEY}&variables_values=${otp}&route=otp&numbers=${phoneNumber}`;
+        const smsRes = await fetch(smsUrl);
+        const smsData = await smsRes.json();
+        console.log("📨 [Fast2SMS API Response]:", smsData);
+      } catch (smsErr) {
+        console.error("❌ Failed to dispatch SMS via Fast2SMS API:", smsErr.message);
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'OTP verification code has been dispatched successfully.', 
+      devOtp: otp // Send it in response as well to allow simple UI tip assistance
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Forgot password dispatch error.' });
+  }
+});
+
+// 17. Auth: Reset Password (Verify OTP & Update SHA-256 password hash)
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { phoneNumber, otp, newPassword } = req.body;
+  if (!phoneNumber || !otp || !newPassword) {
+    return res.status(400).json({ error: 'Essential reset parameters are missing.' });
+  }
+
+  try {
+    const cached = otpCache[phoneNumber];
+    if (!cached) {
+      return res.status(400).json({ error: 'OTP request has expired or never requested.' });
+    }
+    if (cached.expiresAt < Date.now()) {
+      delete otpCache[phoneNumber];
+      return res.status(400).json({ error: 'OTP code has expired. Request a new one.' });
+    }
+    if (String(cached.otp) !== String(otp)) {
+      return res.status(400).json({ error: 'Invalid OTP verification code.' });
+    }
+
+    // OTP verified successfully! Hash the new password with SHA-256
+    const passwordHash = hashPasswordSHA256(newPassword);
+
+    if (useMySQL) {
+      await dbPool.query('UPDATE Users SET PasswordHash = ? WHERE PhoneNumber = ?', [passwordHash, phoneNumber]);
+    } else {
+      const users = readJSON(localUsersFile);
+      const updated = users.map(u => u.phoneNumber === phoneNumber ? { ...u, passwordHash } : u);
+      writeJSON(localUsersFile, updated);
+    }
+
+    // Clear OTP cache
+    delete otpCache[phoneNumber];
+
+    console.log(`✅ [PASSWORD RESET SUCCESS] Password updated for phone number: ${phoneNumber}`);
+    res.json({ success: true, message: 'Password has been successfully updated.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Password update error.' });
+  }
+});
+
 initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Node Express Server listening securely on port ${PORT}`);

@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { Home, Phone, Info, LayoutDashboard, LogIn, Send, MessageSquare, CheckCircle2, Search, Filter } from 'lucide-react';
+import { 
+  Home, Phone, Info, LayoutDashboard, LogIn, Send, MessageSquare, CheckCircle2, Search, Filter, 
+  Layers, ShoppingBag, Activity, Utensils, Warehouse, Truck, Receipt, ClipboardList, QrCode, 
+  BarChart3, Users, CloudLightning, Contact2, GitBranch, Play, Check, X, ChevronRight, Monitor, Smartphone
+} from 'lucide-react';
 
 const DEALER_WHATSAPP = "918226811810"; 
 
 export default function PublicPortal({ properties = [], onLoginTrigger, onSignupTrigger }) {
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'about' | 'contact'
+  const [activeTab, setActiveTab] = useState('home'); // 'home' | 'plots' | 'about' | 'contact'
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All');
   
+  // Interactive Dashboard Preview tab state
+  const [activePreview, setActivePreview] = useState('sales'); // 'sales' | 'inventory' | 'reports' | 'rfid'
+
+  // Video Demo modal trigger
+  const [showDemoModal, setShowDemoModal] = useState(false);
+
   // Inquiry form states
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -101,26 +111,28 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
     setSuccess(false);
   };
 
+  const handleNavClick = (tab, sectionId = null) => {
+    setActiveTab(tab);
+    if (sectionId) {
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-family)' }}>
+    <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-family)', position: 'relative' }}>
       
-      {/* 1. STICKY GLASSMORPHIC NAVBAR */}
-      <nav style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        background: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--border-color)',
-        padding: '14px 40px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: 'var(--shadow-sm)'
-      }}>
+      {/* 1. STICKY GLASSMORPHIC SAAS NAVBAR */}
+      <nav className="saas-navbar">
         
         {/* Brand Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => handleNavClick('home')}>
           <div style={{
             background: 'var(--primary)',
             color: '#fff',
@@ -132,152 +144,868 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
             justifyContent: 'center',
             boxShadow: '0 4px 10px rgba(30,111,253,0.3)'
           }}>
-            <Home size={18} strokeWidth={2.5} />
+            <Layers size={18} strokeWidth={2.5} />
           </div>
-          <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.5px' }}>PropDeal</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>PropDeal</span>
+            <span style={{ fontSize: '9px', fontWeight: '700', color: 'var(--primary)', letterSpacing: '0.5px' }}>ERP SUITE</span>
+          </div>
         </div>
 
         {/* Middle Navigation Links */}
-        <div style={{ display: 'flex', gap: '24px' }}>
+        <div className="saas-nav-links">
           <button 
             type="button" 
-            style={{
-              fontSize: '13.5px',
-              fontWeight: activeTab === 'dashboard' ? '700' : '500',
-              color: activeTab === 'dashboard' ? 'var(--primary)' : 'var(--text-muted)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              borderBottom: activeTab === 'dashboard' ? '2px solid var(--primary)' : '2px solid transparent',
-              paddingBottom: '4px'
-            }}
-            onClick={() => setActiveTab('dashboard')}
+            className={`saas-nav-link ${activeTab === 'home' ? 'active' : ''}`}
+            onClick={() => handleNavClick('home')}
           >
-            <LayoutDashboard size={15} />
+            Home
+          </button>
+          <button 
+            type="button" 
+            className="saas-nav-link"
+            onClick={() => handleNavClick('home', 'features')}
+          >
+            Features
+          </button>
+          <button 
+            type="button" 
+            className="saas-nav-link"
+            onClick={() => handleNavClick('home', 'modules')}
+          >
+            Modules
+          </button>
+          <button 
+            type="button" 
+            className="saas-nav-link"
+            onClick={() => handleNavClick('home', 'previews')}
+          >
+            Dashboard Demo
+          </button>
+          <button 
+            type="button" 
+            className={`saas-nav-link ${activeTab === 'plots' ? 'active' : ''}`}
+            onClick={() => handleNavClick('plots')}
+          >
             Plots Showcase
           </button>
-          
           <button 
             type="button" 
-            style={{
-              fontSize: '13.5px',
-              fontWeight: activeTab === 'about' ? '700' : '500',
-              color: activeTab === 'about' ? 'var(--primary)' : 'var(--text-muted)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              borderBottom: activeTab === 'about' ? '2px solid var(--primary)' : '2px solid transparent',
-              paddingBottom: '4px'
-            }}
-            onClick={() => setActiveTab('about')}
+            className={`saas-nav-link ${activeTab === 'about' ? 'active' : ''}`}
+            onClick={() => handleNavClick('about')}
           >
-            <Info size={15} />
-            About Company
+            About Us
           </button>
-
           <button 
             type="button" 
-            style={{
-              fontSize: '13.5px',
-              fontWeight: activeTab === 'contact' ? '700' : '500',
-              color: activeTab === 'contact' ? 'var(--primary)' : 'var(--text-muted)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              borderBottom: activeTab === 'contact' ? '2px solid var(--primary)' : '2px solid transparent',
-              paddingBottom: '4px'
-            }}
-            onClick={() => setActiveTab('contact')}
+            className={`saas-nav-link ${activeTab === 'contact' ? 'active' : ''}`}
+            onClick={() => handleNavClick('contact')}
           >
-            <Phone size={15} />
-            Contact & Inquiry
+            Contact
           </button>
         </div>
 
         {/* Right Portal Redirect button */}
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             type="button"
-            className="btn btn-secondary"
             style={{ 
-              padding: '8px 16px', 
-              fontSize: '12.5px', 
+              fontSize: '13.5px', 
               fontWeight: '600', 
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
+              color: 'var(--text-main)',
+              cursor: 'pointer'
             }}
             onClick={onLoginTrigger}
           >
-            <LogIn size={14} />
-            Agent Portal
+            Sign In
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ 
+              padding: '10px 20px', 
+              fontSize: '13px', 
+              fontWeight: '700', 
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'linear-gradient(135deg, var(--primary) 0%, hsl(230, 90%, 60%) 100%)',
+              border: 'none',
+              boxShadow: '0 4px 12px rgba(30,111,253,0.2)'
+            }}
+            onClick={onLoginTrigger}
+          >
+            Get Started
+            <ChevronRight size={14} />
           </button>
         </div>
       </nav>
 
       {/* 2. BODY CONTENT RENDERER */}
-      <main style={{ flex: 1, padding: '40px' }} className="main-portal-content">
+      <main style={{ flex: 1, position: 'relative' }} className="main-portal-content">
         
         {/* =========================================================================
-            TAB: DASHBOARD - PROPERTIES/PLOTS SHOWCASE
+            TAB: HOME - HIGH-END ENTERPRISE SAAS HOMEPAGE
             ========================================================================= */}
-        {activeTab === 'dashboard' && (
-          <div style={{ animation: 'fade-in 0.4s ease-out' }}>
+        {activeTab === 'home' && (
+          <div style={{ animation: 'fade-in 0.5s ease-out' }}>
             
-            {/* Showcase Hero Header */}
-            <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-              <h1 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-1px' }}>
-                Premium Property & Plots Showcase
+            {/* Mesh Background Accent Glows */}
+            <div className="saas-hero-glow-container">
+              <div className="saas-glow-circle primary" />
+              <div className="saas-glow-circle purple" />
+              <div className="saas-glow-circle emerald" />
+            </div>
+
+            {/* A. HERO PANEL SECTION */}
+            <section className="saas-hero-container">
+              {/* Left Column */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <div className="saas-badge-pill">
+                  <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)', animation: 'pulse-ring 2s infinite' }} />
+                  ✨ Real Estate & Business ERP Ecosystem
+                </div>
+
+                <h1 className="saas-h1">
+                  One Software For Every <br />
+                  <span className="gradient">Property & Business</span>
+                </h1>
+
+                <p className="saas-lead-text">
+                  Manage listings, inventory, GST invoices, RFID tagging, real-time client leads, and direct WhatsApp integrations. An all-in-one suite custom built for property agents and modern retail distributors.
+                </p>
+
+                <div className="saas-hero-actions">
+                  <button 
+                    type="button" 
+                    className="btn-saas-primary"
+                    onClick={onLoginTrigger}
+                  >
+                    Start Free Trial
+                    <ChevronRight size={16} />
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn-saas-secondary"
+                    onClick={() => setShowDemoModal(true)}
+                  >
+                    <Play size={16} fill="var(--text-main)" />
+                    Watch Product Tour
+                  </button>
+                </div>
+
+                <div className="saas-tagline-badges">
+                  <div className="saas-tagline-badge">
+                    <Check size={12} strokeWidth={3} style={{ color: 'var(--success-icon)' }} />
+                    GST Ready Billing
+                  </div>
+                  <div className="saas-tagline-badge">
+                    <Check size={12} strokeWidth={3} style={{ color: 'var(--success-icon)' }} />
+                    RFID Smart Tracker
+                  </div>
+                  <div className="saas-tagline-badge">
+                    <Check size={12} strokeWidth={3} style={{ color: 'var(--success-icon)' }} />
+                    Secure Cloud Sync
+                  </div>
+                  <div className="saas-tagline-badge">
+                    <Check size={12} strokeWidth={3} style={{ color: 'var(--success-icon)' }} />
+                    WhatsApp Leads
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Premium Laptop & Phone CSS Mockups */}
+              <div className="saas-device-mockups">
+                {/* Simulated Laptop Frame */}
+                <div className="laptop-mockup">
+                  <div className="laptop-screen">
+                    <div className="laptop-camera" />
+                    {/* Simulated miniature dashboard inside screen */}
+                    <div className="mini-dash-layout">
+                      <div className="mini-dash-header">
+                        <div className="mini-dash-brand">
+                          <div className="mini-dash-dot" />
+                          PropDeal Suite
+                        </div>
+                        <div className="mini-dash-profile" />
+                      </div>
+                      
+                      <div className="mini-dash-grid">
+                        <div className="mini-dash-card">
+                          <span className="mini-dash-card-title">Daily Sales</span>
+                          <span className="mini-dash-card-value">₹1.85 Lakh</span>
+                        </div>
+                        <div className="mini-dash-card">
+                          <span className="mini-dash-card-title">Available Plots</span>
+                          <span className="mini-dash-card-value">28 Units</span>
+                        </div>
+                        <div className="mini-dash-card">
+                          <span className="mini-dash-card-title">Active Leads</span>
+                          <span className="mini-dash-card-value">1,402 CRM</span>
+                        </div>
+                      </div>
+
+                      <div className="mini-dash-chart-section">
+                        <div className="mini-dash-chart-header">
+                          <span style={{ fontWeight: '700', fontSize: '7px', color: 'white' }}>Monthly Lead Trends</span>
+                          <span style={{ fontSize: '6px', color: 'var(--primary)' }}>+24% YoY</span>
+                        </div>
+                        <div className="mini-dash-chart-bars">
+                          <div className="mini-dash-chart-bar" style={{ height: '35%', width: '8px' }} />
+                          <div className="mini-dash-chart-bar purple" style={{ height: '60%', width: '8px' }} />
+                          <div className="mini-dash-chart-bar emerald" style={{ height: '50%', width: '8px' }} />
+                          <div className="mini-dash-chart-bar" style={{ height: '80%', width: '8px' }} />
+                          <div className="mini-dash-chart-bar purple" style={{ height: '90%', width: '8px' }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="laptop-base" />
+                </div>
+
+                {/* Simulated Smartphone Frame overlapping */}
+                <div className="phone-mockup">
+                  <div className="phone-speaker" />
+                  <div className="phone-screen">
+                    <div className="mini-mobile-layout">
+                      <div className="mini-mob-header">
+                        <span className="mini-mob-logo">PropDeal</span>
+                        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#10b981' }} />
+                      </div>
+
+                      <div className="mini-mob-stats-row">
+                        <div className="mini-mob-card">
+                          <div style={{ fontSize: '5px', color: '#64748b' }}>LEADS</div>
+                          <span className="mini-mob-card-val">+42 Today</span>
+                        </div>
+                        <div className="mini-mob-card">
+                          <div style={{ fontSize: '5px', color: '#64748b' }}>BILLING</div>
+                          <span className="mini-mob-card-val">GST Invoiced</span>
+                        </div>
+                      </div>
+
+                      <div className="mini-mob-list">
+                        <div style={{ fontSize: '6px', fontWeight: '700', color: 'white', marginBottom: '2px' }}>Latest Enquiries</div>
+                        <div className="mini-mob-list-item">
+                          <div className="mini-mob-list-left">
+                            <div className="mini-mob-indicator" />
+                            <span>Plot A-42</span>
+                          </div>
+                          <span style={{ fontSize: '7px', color: 'white', fontWeight: '700' }}>₹48L</span>
+                        </div>
+                        <div className="mini-mob-list-item">
+                          <div className="mini-mob-list-left">
+                            <div className="mini-mob-indicator emerald" />
+                            <span>Rahul S.</span>
+                          </div>
+                          <span style={{ fontSize: '7px', color: '#10b981', fontWeight: '700' }}>WhatsApp</span>
+                        </div>
+                        <div className="mini-mob-list-item">
+                          <div className="mini-mob-list-left">
+                            <div className="mini-mob-indicator orange" />
+                            <span>2BHK Flat</span>
+                          </div>
+                          <span style={{ fontSize: '7px', color: 'white', fontWeight: '700' }}>₹35L</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="phone-home-indicator" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* B. "DESIGNED FOR EVERY TYPE OF BUSINESS" MODULES GRID */}
+            <section id="modules" style={{ padding: '80px 0', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
+              <div className="saas-section-header">
+                <span className="saas-section-badge">Enterprise Versatility</span>
+                <h2 className="saas-section-title">Designed For Every Type of Business</h2>
+                <p className="saas-section-subtitle">
+                  Our comprehensive ERP modules are custom tailored to match the unique workflows of diverse commercial sectors.
+                </p>
+              </div>
+
+              <div className="saas-modules-grid">
+                
+                {/* 1. Retail Shop */}
+                <div className="saas-module-card accent-blue">
+                  <div className="saas-module-icon-wrap">
+                    <ShoppingBag size={24} />
+                  </div>
+                  <h3 className="saas-module-title">Retail Shop</h3>
+                  <p className="saas-module-desc">
+                    Superfast POS billing, item barcodes, automated profit margin trackers, and simple customer accounts.
+                  </p>
+                  <div className="saas-module-features-list">
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Multi-Payment POS
+                    </div>
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Daily Profit Reports
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Pharmacy */}
+                <div className="saas-module-card accent-emerald">
+                  <div className="saas-module-icon-wrap">
+                    <Activity size={24} />
+                  </div>
+                  <h3 className="saas-module-title">Pharmacy</h3>
+                  <p className="saas-module-desc">
+                    Expiry date tracking alerts, generic name search mapping, drug schedule logs, and batch-wise inventory.
+                  </p>
+                  <div className="saas-module-features-list">
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Expiry Notification
+                    </div>
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Batch Stock Logs
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Restaurant */}
+                <div className="saas-module-card accent-violet">
+                  <div className="saas-module-icon-wrap">
+                    <Utensils size={24} />
+                  </div>
+                  <h3 className="saas-module-title">Restaurant</h3>
+                  <p className="saas-module-desc">
+                    Table-wise order mapping, KOT printer dispatching, digital menu pricing, and ingredient wastage trackers.
+                  </p>
+                  <div className="saas-module-features-list">
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Kitchen Order Ticket (KOT)
+                    </div>
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Table QR Code Ordering
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Property Dealer (SPECIALTY HIGHLIGHT) */}
+                <div className="saas-module-card accent-blue specialty-highlight">
+                  <div className="saas-module-icon-wrap">
+                    <Home size={24} />
+                  </div>
+                  <h3 className="saas-module-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Property Dealer
+                  </h3>
+                  <p className="saas-module-desc">
+                    Our award winning specialty. Interactive plot status grids, registry tracker, secure builder commission ledger, and direct WhatsApp lead generator.
+                  </p>
+                  <div className="saas-module-features-list">
+                    <div className="saas-module-feature-item" style={{ fontWeight: '700', color: 'var(--text-main)' }}>
+                      <CheckCircle2 size={13} /> Interactive Plot Grids
+                    </div>
+                    <div className="saas-module-feature-item" style={{ fontWeight: '700', color: 'var(--text-main)' }}>
+                      <CheckCircle2 size={13} /> WhatsApp Client Dispatch
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. Warehouse */}
+                <div className="saas-module-card accent-orange">
+                  <div className="saas-module-icon-wrap">
+                    <Warehouse size={24} />
+                  </div>
+                  <h3 className="saas-module-title">Warehouse</h3>
+                  <p className="saas-module-desc">
+                    Rack management grids, stock adjustment logs, automated inventory auditing, and internal stock transfer tracking.
+                  </p>
+                  <div className="saas-module-features-list">
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Rack & Bin Allocation
+                    </div>
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Bulk Upload CSV
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Distributor */}
+                <div className="saas-module-card accent-pink">
+                  <div className="saas-module-icon-wrap">
+                    <Truck size={24} />
+                  </div>
+                  <h3 className="saas-module-title">Distributor</h3>
+                  <p className="saas-module-desc">
+                    Party-wise outstanding credit trackers, sales agent routing, auto-purchase orders, and dynamic discount structures.
+                  </p>
+                  <div className="saas-module-features-list">
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Outstanding Ledgers
+                    </div>
+                    <div className="saas-module-feature-item">
+                      <CheckCircle2 size={13} /> Field Agent CRM App
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+            {/* C. "POWERFUL FEATURES" GRID SECTION */}
+            <section id="features" style={{ padding: '80px 0', borderTop: '1px solid var(--border-color)' }}>
+              <div className="saas-section-header">
+                <span className="saas-section-badge">Core Capability</span>
+                <h2 className="saas-section-title">Powerful Core Features</h2>
+                <p className="saas-section-subtitle">
+                  Built on enterprise-grade architecture, designed to simplify complicated business operations.
+                </p>
+              </div>
+
+              <div className="saas-features-grid">
+                
+                {/* 1. GST Billing */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--info-bg)', color: 'var(--info-icon)' }}>
+                    <Receipt size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">GST Ready Billing</h4>
+                  <p className="saas-feature-desc">Generate SGST, CGST, and IGST invoices on the fly with customizable invoice design print templates.</p>
+                </div>
+
+                {/* 2. Inventory Management */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--success-bg)', color: 'var(--success-icon)' }}>
+                    <ClipboardList size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">Smart Inventory</h4>
+                  <p className="saas-feature-desc">Live stock counting alerts when items drop below threshold buffer limits, minimizing stockouts.</p>
+                </div>
+
+                {/* 3. Barcode & RFID */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--purple-bg)', color: 'var(--purple-icon)' }}>
+                    <QrCode size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">Barcode & RFID Ready</h4>
+                  <p className="saas-feature-desc">Fully supports physical RFID integration and custom barcode printing to automate checkout scanning speed.</p>
+                </div>
+
+                {/* 4. Detailed Reports */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--warning-bg)', color: 'var(--warning-icon)' }}>
+                    <BarChart3 size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">Detailed Reports</h4>
+                  <p className="saas-feature-desc">Export high-fidelity PDF/Excel reports covering taxes, customer outstanding collections, and asset status.</p>
+                </div>
+
+                {/* 5. Multi User */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--pink-bg)', color: 'var(--pink-icon)' }}>
+                    <Users size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">Multi-User Roles</h4>
+                  <p className="saas-feature-desc">Granular authorization settings to define access permissions for Managers, Cashiers, and Agents separately.</p>
+                </div>
+
+                {/* 6. Cloud Backup */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--teal-bg)', color: 'var(--teal-icon)' }}>
+                    <CloudLightning size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">Realtime Cloud Sync</h4>
+                  <p className="saas-feature-desc">Automatic transaction backing securely hosted on enterprise-grade MySQL database instances.</p>
+                </div>
+
+                {/* 7. Customer & Supplier */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--danger-bg)', color: 'var(--danger-icon)' }}>
+                    <Contact2 size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">Party Ledger Ledger</h4>
+                  <p className="saas-feature-desc">Track vendor and client debit balances, complete with chronological billing history and logs.</p>
+                </div>
+
+                {/* 8. Multi Branch */}
+                <div className="saas-feature-card">
+                  <div className="saas-feature-icon-wrap" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
+                    <GitBranch size={18} />
+                  </div>
+                  <h4 className="saas-feature-title">Multi-Branch Sync</h4>
+                  <p className="saas-feature-desc">Manage multiple stores or agent offices under a single master administrator command console.</p>
+                </div>
+
+              </div>
+            </section>
+
+            {/* D. INTERACTIVE PREVIEWS SECTION */}
+            <section id="previews" style={{ padding: '80px 0', borderTop: '1px solid var(--border-color)', background: 'var(--bg-main)' }}>
+              <div className="saas-section-header">
+                <span className="saas-section-badge">Interactive Demo</span>
+                <h2 className="saas-section-title">Explore Live Previews</h2>
+                <p className="saas-section-subtitle">
+                  Click any dashboard module below to preview the actual high-fidelity workspace in real time.
+                </p>
+              </div>
+
+              <div className="saas-previews-container">
+                {/* Selector Tabs */}
+                <div className="saas-previews-tabs">
+                  <button 
+                    type="button" 
+                    className={`saas-preview-tab-btn ${activePreview === 'sales' ? 'active' : ''}`}
+                    onClick={() => setActivePreview('sales')}
+                  >
+                    <BarChart3 size={15} />
+                    Sales Dashboard
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`saas-preview-tab-btn ${activePreview === 'inventory' ? 'active' : ''}`}
+                    onClick={() => setActivePreview('inventory')}
+                  >
+                    <ClipboardList size={15} />
+                    Inventory Showcase
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`saas-preview-tab-btn ${activePreview === 'reports' ? 'active' : ''}`}
+                    onClick={() => setActivePreview('reports')}
+                  >
+                    <Receipt size={15} />
+                    Lead Reports
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`saas-preview-tab-btn ${activePreview === 'rfid' ? 'active' : ''}`}
+                    onClick={() => setActivePreview('rfid')}
+                  >
+                    <QrCode size={15} />
+                    RFID Smart Scanner
+                  </button>
+                </div>
+
+                {/* Dashboard Frame Window */}
+                <div className="saas-preview-window">
+                  <div className="saas-preview-win-header">
+                    <div className="saas-preview-win-dots">
+                      <div className="saas-preview-win-dot" />
+                      <div className="saas-preview-win-dot yellow" />
+                      <div className="saas-preview-win-dot green" />
+                    </div>
+                    <div className="saas-preview-win-title">
+                      PropDeal ERP Enterprise - {activePreview.toUpperCase()} PANEL v1.4
+                    </div>
+                    <div style={{ width: '32px' }} />
+                  </div>
+
+                  <div className="saas-preview-win-body">
+                    {/* Render active visualization */}
+                    {activePreview === 'sales' && (
+                      <div className="chart-vis-container">
+                        <div className="chart-vis-header-row">
+                          <span className="chart-vis-title">Real-time Revenue Analysis</span>
+                          <div className="chart-vis-metrics">
+                            <div className="chart-vis-metric">
+                              <span className="chart-vis-metric-lbl">Total Sales</span>
+                              <span className="chart-vis-metric-val">₹84,50,000</span>
+                            </div>
+                            <div className="chart-vis-metric">
+                              <span className="chart-vis-metric-lbl">Tax Collected</span>
+                              <span className="chart-vis-metric-val">₹15,21,000</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="chart-vis-graphic">
+                          <div className="chart-vis-bars">
+                            <div className="chart-vis-bar-column">
+                              <div className="chart-vis-bar" style={{ height: '35%' }}>
+                                <span className="chart-vis-bar-tooltip">₹12 Lakh</span>
+                              </div>
+                              <span className="chart-vis-bar-lbl">Jan</span>
+                            </div>
+                            <div className="chart-vis-bar-column">
+                              <div className="chart-vis-bar" style={{ height: '55%' }}>
+                                <span className="chart-vis-bar-tooltip">₹18 Lakh</span>
+                              </div>
+                              <span className="chart-vis-bar-lbl">Feb</span>
+                            </div>
+                            <div className="chart-vis-bar-column">
+                              <div className="chart-vis-bar violet" style={{ height: '85%' }}>
+                                <span className="chart-vis-bar-tooltip">₹24 Lakh</span>
+                              </div>
+                              <span className="chart-vis-bar-lbl">Mar</span>
+                            </div>
+                            <div className="chart-vis-bar-column">
+                              <div className="chart-vis-bar" style={{ height: '40%' }}>
+                                <span className="chart-vis-bar-tooltip">₹14 Lakh</span>
+                              </div>
+                              <span className="chart-vis-bar-lbl">Apr</span>
+                            </div>
+                            <div className="chart-vis-bar-column">
+                              <div className="chart-vis-bar emerald" style={{ height: '95%' }}>
+                                <span className="chart-vis-bar-tooltip">₹32 Lakh</span>
+                              </div>
+                              <span className="chart-vis-bar-lbl">May</span>
+                            </div>
+                            <div className="chart-vis-bar-column">
+                              <div className="chart-vis-bar" style={{ height: '70%' }}>
+                                <span className="chart-vis-bar-tooltip">₹21 Lakh</span>
+                              </div>
+                              <span className="chart-vis-bar-lbl">Jun</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activePreview === 'inventory' && (
+                      <div className="chart-vis-container" style={{ gap: '15px' }}>
+                        <div className="chart-vis-header-row">
+                          <span className="chart-vis-title">Properties & Asset Registry Stock</span>
+                          <span className="badge success">Active Server Connected</span>
+                        </div>
+
+                        <div className="table-responsive" style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '10px' }}>
+                          <table className="premium-table" style={{ color: '#94a3b8' }}>
+                            <thead>
+                              <tr>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Property Name</th>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Type</th>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Asking Price</th>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td style={{ color: 'white', fontSize: '11px', borderBottomColor: '#334155' }}>Vrindavan Enclave Phase 2</td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>Plot Listing</td>
+                                <td style={{ color: '#10b981', fontWeight: '700', fontSize: '11px', borderBottomColor: '#334155' }}>₹48,00,000</td>
+                                <td style={{ borderBottomColor: '#334155' }}><span className="badge success" style={{ fontSize: '8px', padding: '2px 6px' }}>Available</span></td>
+                              </tr>
+                              <tr>
+                                <td style={{ color: 'white', fontSize: '11px', borderBottomColor: '#334155' }}>Royal heights Luxury Flat</td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>3BHK Apartment</td>
+                                <td style={{ color: '#10b981', fontWeight: '700', fontSize: '11px', borderBottomColor: '#334155' }}>₹65,00,000</td>
+                                <td style={{ borderBottomColor: '#334155' }}><span className="badge success" style={{ fontSize: '8px', padding: '2px 6px' }}>Available</span></td>
+                              </tr>
+                              <tr>
+                                <td style={{ color: 'white', fontSize: '11px', borderBottomColor: '#334155' }}>Shri Ram Commercial Complex</td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>Office Space</td>
+                                <td style={{ color: '#10b981', fontWeight: '700', fontSize: '11px', borderBottomColor: '#334155' }}>₹1,20,00,000</td>
+                                <td style={{ borderBottomColor: '#334155' }}><span className="badge warning" style={{ fontSize: '8px', padding: '2px 6px', background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24' }}>Booked</span></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {activePreview === 'reports' && (
+                      <div className="chart-vis-container" style={{ gap: '15px' }}>
+                        <div className="chart-vis-header-row">
+                          <span className="chart-vis-title">Realtime Leads Pipeline (PropDeal CRM)</span>
+                          <span style={{ fontSize: '11px', color: 'white' }}>Showing 3 Latest Web Leads</span>
+                        </div>
+
+                        <div className="table-responsive" style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '10px' }}>
+                          <table className="premium-table" style={{ color: '#94a3b8' }}>
+                            <thead>
+                              <tr>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Client</th>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Requirement</th>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Contact Status</th>
+                                <th style={{ color: 'white', fontSize: '9px' }}>Inquiry Date</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td style={{ color: 'white', fontSize: '11px', borderBottomColor: '#334155' }}>Amit Sharma</td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>Residential Plot 200SqYd</td>
+                                <td style={{ borderBottomColor: '#334155' }}><span className="badge success" style={{ fontSize: '8px', padding: '2px 6px' }}>New Lead</span></td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>Today, 02:45 PM</td>
+                              </tr>
+                              <tr>
+                                <td style={{ color: 'white', fontSize: '11px', borderBottomColor: '#334155' }}>Prerna Singhania</td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>3BHK Builder Floor</td>
+                                <td style={{ borderBottomColor: '#334155' }}><span className="badge info" style={{ fontSize: '8px', padding: '2px 6px', background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa' }}>WhatsApp Sent</span></td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>Yesterday, 05:10 PM</td>
+                              </tr>
+                              <tr>
+                                <td style={{ color: 'white', fontSize: '11px', borderBottomColor: '#334155' }}>Rajesh Verma</td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>Commercial Office Space</td>
+                                <td style={{ borderBottomColor: '#334155' }}><span className="badge warning" style={{ fontSize: '8px', padding: '2px 6px', background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24' }}>Follow-up Pending</span></td>
+                                <td style={{ fontSize: '11px', borderBottomColor: '#334155' }}>28 May, 11:30 AM</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {activePreview === 'rfid' && (
+                      <div className="chart-vis-container">
+                        <div className="chart-vis-header-row">
+                          <span className="chart-vis-title">Realtime RFID Smart Gate Scanner</span>
+                          <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 'bold' }}>📡 Scanner Active</span>
+                        </div>
+
+                        <div className="rfid-grid-graphic">
+                          
+                          <div className="rfid-scanner-card">
+                            <div className="rfid-pulse" />
+                            <span className="rfid-scanner-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>Plot Tag A-1</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>Asset Verified</span>
+                            <span style={{ fontSize: '9px', color: '#64748b' }}>RSSI: -45dBm</span>
+                          </div>
+
+                          <div className="rfid-scanner-card">
+                            <div className="rfid-pulse" style={{ background: '#3b82f6' }} />
+                            <span className="rfid-scanner-badge" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>Plot Tag A-2</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>Asset Booked</span>
+                            <span style={{ fontSize: '9px', color: '#64748b' }}>RSSI: -52dBm</span>
+                          </div>
+
+                          <div className="rfid-scanner-card">
+                            <div className="rfid-pulse" style={{ background: '#fbbf24' }} />
+                            <span className="rfid-scanner-badge" style={{ background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>Plot Tag B-4</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>Auditing</span>
+                            <span style={{ fontSize: '9px', color: '#64748b' }}>RSSI: -61dBm</span>
+                          </div>
+
+                          <div className="rfid-scanner-card">
+                            <div className="rfid-pulse" />
+                            <span className="rfid-scanner-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>Plot Tag C-12</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>Asset Verified</span>
+                            <span style={{ fontSize: '9px', color: '#64748b' }}>RSSI: -48dBm</span>
+                          </div>
+
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        )}
+
+        {/* =========================================================================
+            TAB: PLOTS - PREMIUM LIVE LISTINGS SHOWCASE CATALOG
+            ========================================================================= */}
+        {activeTab === 'plots' && (
+          <div style={{ animation: 'fade-in 0.4s ease-out', padding: '40px' }}>
+            
+            {/* Majestic Mesh Gradient Hero Section */}
+            <div style={{
+              background: 'linear-gradient(135deg, hsla(220, 95%, 60%, 0.03) 0%, hsla(271, 81%, 95%, 0.06) 100%)',
+              border: '1px solid rgba(226, 232, 240, 0.8)',
+              borderRadius: '24px',
+              padding: '60px 40px',
+              textAlign: 'center',
+              marginBottom: '40px',
+              boxShadow: 'var(--shadow-sm)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* Blur accent glow */}
+              <div style={{
+                position: 'absolute',
+                top: '-50px',
+                left: '-50px',
+                width: '200px',
+                height: '200px',
+                background: 'var(--primary-light)',
+                borderRadius: '50%',
+                filter: 'blur(80px)',
+                opacity: 0.6,
+                pointerEvents: 'none'
+              }} />
+              
+              <span style={{
+                background: 'linear-gradient(90deg, var(--primary) 0%, hsl(271, 81%, 50%) 100%)',
+                color: '#fff',
+                padding: '6px 18px',
+                borderRadius: '30px',
+                fontSize: '11px',
+                fontWeight: '800',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                boxShadow: '0 4px 12px rgba(30, 111, 253, 0.2)',
+                display: 'inline-block'
+              }}>
+                ✨ PREMIUM VERIFIED LISTINGS
+              </span>
+              
+              <h1 style={{ 
+                fontSize: '38px', 
+                fontWeight: '900', 
+                color: 'var(--text-main)', 
+                letterSpacing: '-1.5px', 
+                marginTop: '18px', 
+                lineHeight: '1.25' 
+              }}>
+                Apna Dream Plot Aur Property Dhundhein
               </h1>
-              <p style={{ fontSize: '15px', color: 'var(--text-muted)', marginTop: '6px', maxWidth: '600px', margin: '6px auto 0 auto' }}>
-                Browse verified premium residential plots, commercial spaces, and dream homes in hot locations. 
-                Get direct dealer pricing without hidden charges.
+              
+              <p style={{ 
+                fontSize: '15.5px', 
+                color: 'var(--text-muted)', 
+                marginTop: '10px', 
+                maxWidth: '650px', 
+                margin: '12px auto 0 auto', 
+                lineHeight: '1.6' 
+              }}>
+                Browse verified premium residential plots, highly lucrative commercial shops, and dream homes in hot locations. Connect directly with the dealer on WhatsApp with 0% brokerage.
               </p>
             </div>
 
-            {/* Filter & Search Bar */}
+            {/* Filter & Search Bar with Glassmorphic backdrop */}
             <div className="dashboard-card" style={{ 
-              padding: '16px 24px', 
-              marginBottom: '30px', 
+              padding: '18px 24px', 
+              marginBottom: '32px', 
               display: 'flex', 
               flexDirection: 'row', 
               justifyContent: 'space-between', 
               alignItems: 'center',
               flexWrap: 'wrap',
               gap: '16px',
-              background: '#fff'
+              background: '#fff',
+              borderRadius: '20px',
+              border: '1px solid var(--border-color)',
+              boxShadow: 'var(--shadow-sm)'
             }}>
               
               {/* Left search */}
-              <div className="header-search-bar" style={{ width: '320px', margin: 0 }}>
+              <div className="header-search-bar" style={{ width: '330px', margin: 0, borderRadius: '12px', background: 'var(--bg-main)' }}>
                 <Search size={18} />
                 <input 
                   type="text" 
-                  placeholder="Search by title or type..." 
+                  placeholder="Search location or type..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ fontSize: '13px' }}
                 />
               </div>
 
-              {/* Right filters */}
+              {/* Right filters with Pill Buttons */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', marginRight: '6px' }}>
-                  Filter Type:
+                <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', marginRight: '8px' }}>
+                  Category:
                 </span>
                 {['All', 'Plot', 'House', 'Flat', 'Shop', 'Office'].map((t) => (
                   <button
                     key={t}
                     type="button"
                     style={{
-                      padding: '6px 12px',
-                      borderRadius: '6px',
+                      padding: '8px 18px',
+                      borderRadius: '30px',
                       fontSize: '12.5px',
-                      fontWeight: '600',
-                      background: filterType === t ? 'var(--primary)' : 'var(--bg-main)',
+                      fontWeight: '700',
+                      background: filterType === t ? 'linear-gradient(135deg, var(--primary) 0%, hsl(230, 90%, 60%) 100%)' : 'var(--bg-main)',
                       color: filterType === t ? '#fff' : 'var(--text-muted)',
-                      border: filterType === t ? '1px solid var(--primary)' : '1px solid var(--border-color)',
-                      transition: 'all 0.2s'
+                      border: filterType === t ? 'none' : '1px solid var(--border-color)',
+                      boxShadow: filterType === t ? '0 4px 12px rgba(30, 111, 253, 0.2)' : 'none',
+                      transition: 'all 0.25s ease',
+                      cursor: 'pointer'
                     }}
                     onClick={() => setFilterType(t)}
                   >
@@ -288,47 +1016,31 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
             </div>
 
             {/* Showcase Grid of Available Properties */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '28px' }}>
               {filteredProperties.length > 0 ? (
                 filteredProperties.map((p) => (
-                  <div 
-                    key={p.id} 
-                    className="dashboard-card" 
-                    style={{ 
-                      padding: 0, 
-                      overflow: 'hidden', 
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      boxShadow: 'var(--shadow-sm)',
-                      background: '#fff'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-6px)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'none';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                    }}
-                  >
-                    {/* Image Header wrapper */}
-                    <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
+                  <div key={p.id} className="public-property-card">
+                    {/* Image Header wrapper with Zoom Effect */}
+                    <div className="public-card-image-container">
                       <img 
                         src={p.propertyImage || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=350&auto=format&fit=crop'} 
                         alt={p.name} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        className="public-card-image"
                       />
-                      {/* Price Badge Overlay */}
+                      
+                      {/* Price Badge Overlay with blur effect */}
                       <div style={{
                         position: 'absolute',
                         bottom: '12px',
                         left: '12px',
-                        background: 'rgba(15,23,42,0.85)',
-                        backdropFilter: 'blur(4px)',
+                        background: 'rgba(15, 23, 42, 0.75)',
+                        backdropFilter: 'blur(8px)',
                         color: '#fff',
-                        padding: '4px 10px',
-                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        borderRadius: '8px',
                         fontWeight: '800',
-                        fontSize: '14px'
+                        fontSize: '15px',
+                        boxShadow: 'var(--shadow-sm)'
                       }}>
                         ₹{new Intl.NumberFormat('en-IN').format(p.price)}
                       </div>
@@ -336,48 +1048,60 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                       {/* Type Badge Overlay */}
                       <span className={`badge ${
                         p.type === 'Plot' ? 'warning' : p.type === 'House' ? 'success' : 'info'
-                      }`} style={{ position: 'absolute', top: '12px', right: '12px', boxShadow: 'var(--shadow-sm)' }}>
+                      }`} style={{ position: 'absolute', top: '12px', right: '12px', boxShadow: 'var(--shadow-sm)', fontWeight: '700', borderRadius: '6px' }}>
                         {p.type}
                       </span>
                     </div>
 
                     {/* Card Content details */}
-                    <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <h4 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', lineBreak: 'anywhere' }}>
+                    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <h4 style={{ fontSize: '17px', fontWeight: '800', color: 'var(--text-main)', lineBreak: 'anywhere' }}>
                         {p.name}
                       </h4>
                       
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)', borderBottom: '1px dashed var(--border-color)', paddingBottom: '10px' }}>
-                        <span>Listing ID: {p.id}</span>
-                        <span style={{ color: 'var(--success-text)', fontWeight: '700' }}>● Verified Asset</span>
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        fontSize: '12px', 
+                        color: 'var(--text-muted)', 
+                        borderBottom: '1px dashed var(--border-color)', 
+                        paddingBottom: '12px' 
+                      }}>
+                        <span>ID: {p.id}</span>
+                        <span style={{ color: 'var(--success-text)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-icon)', display: 'inline-block' }} />
+                          Verified Asset
+                        </span>
                       </div>
 
-                      {/* Client Call to Action */}
+                      {/* Premium Call to Action button */}
                       <button
                         type="button"
-                        className="btn btn-primary"
+                        className="btn btn-primary public-enquire-btn"
                         style={{ 
                           width: '100%', 
-                          marginTop: '6px', 
-                          background: 'var(--primary)',
+                          marginTop: '4px', 
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '6px',
-                          fontSize: '12.5px',
-                          fontWeight: '700'
+                          gap: '8px',
+                          fontSize: '13px',
+                          fontWeight: '800',
+                          padding: '10px 16px',
+                          borderRadius: '10px'
                         }}
                         onClick={() => handlePropertyEnquiry(p)}
                       >
-                        <MessageSquare size={14} />
+                        <MessageSquare size={15} />
                         Enquire / WhatsApp Detail
                       </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px' }} className="dashboard-card">
-                  <h3 style={{ color: 'var(--text-muted)' }}>Koi property available nahi mili.</h3>
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', borderRadius: '20px' }} className="dashboard-card">
+                  <h3 style={{ color: 'var(--text-muted)', fontSize: '16px', fontWeight: '700' }}>Koi property available nahi mili.</h3>
                   <p style={{ fontSize: '13px', color: 'var(--text-light)', marginTop: '4px' }}>Please try searching with other keywords or adjust your filter.</p>
                 </div>
               )}
@@ -389,7 +1113,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
             TAB: ABOUT COMPANY
             ========================================================================= */}
         {activeTab === 'about' && (
-          <div style={{ animation: 'fade-in 0.4s ease-out', maxWidth: '900px', margin: 'auto' }}>
+          <div style={{ animation: 'fade-in 0.4s ease-out', maxWidth: '900px', margin: 'auto', padding: '60px 40px' }}>
             
             {/* About Company Header */}
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -406,7 +1130,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 KairaBilling & PropDeal
               </h1>
               <p style={{ fontSize: '15px', color: 'var(--text-muted)', marginTop: '8px' }}>
-                PropDeal is a leading property advisory and asset management ecosystem trusted by thousands.
+                PropDeal is a leading property advisory and asset management ecosystem trusted by thousands of builders and agents.
               </p>
             </div>
 
@@ -465,7 +1189,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
             TAB: CONTACT & LEAD INQUIRY FORM
             ========================================================================= */}
         {activeTab === 'contact' && (
-          <div style={{ animation: 'fade-in 0.4s ease-out', maxWidth: '500px', margin: 'auto' }}>
+          <div style={{ animation: 'fade-in 0.4s ease-out', maxWidth: '500px', margin: 'auto', padding: '60px 20px' }}>
             
             <div className="dashboard-card" style={{ padding: '30px', background: '#fff' }}>
               
@@ -647,17 +1371,85 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
 
       </main>
 
-      {/* Footer copyright section */}
+      {/* 3. FOOTER SECTION */}
       <footer style={{
         background: '#fff',
         borderTop: '1px solid var(--border-color)',
-        padding: '20px 40px',
-        textAlign: 'center',
-        fontSize: '12px',
-        color: 'var(--text-muted)'
+        padding: '30px 48px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '16px',
+        fontSize: '12.5px',
+        color: 'var(--text-muted)',
+        zIndex: 10
       }}>
-        © {new Date().getFullYear()} PropDeal. Verified Assets Dealer Consortium. All rights reserved.
+        <div>
+          © {new Date().getFullYear()} <strong>PropDeal ERP Suite</strong>. All rights reserved.
+        </div>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <span style={{ cursor: 'pointer' }} onClick={() => handleNavClick('home')}>Home</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => handleNavClick('plots')}>Plots Showcase</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => handleNavClick('about')}>About Us</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => handleNavClick('contact')}>Contact & Inquiry</span>
+        </div>
       </footer>
+
+      {/* =========================================================================
+          PRODUCT TOUR MODAL OVERLAY
+          ========================================================================= */}
+      {showDemoModal && (
+        <div className="play-modal-overlay" onClick={() => setShowDemoModal(false)}>
+          <div className="play-modal-window" onClick={(e) => e.stopPropagation()}>
+            <div className="play-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Layers size={16} style={{ color: 'var(--primary)' }} />
+                <span style={{ fontWeight: '800', color: 'var(--text-main)', fontSize: '15px' }}>PropDeal ERP Product Tour</span>
+              </div>
+              <button 
+                type="button" 
+                className="play-modal-close"
+                onClick={() => setShowDemoModal(false)}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            <div className="play-modal-video-placeholder">
+              {/* Premium Simulated Guided Tour Graphic */}
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <div style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  background: 'var(--primary-light)',
+                  color: 'var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 20px auto',
+                  boxShadow: '0 8px 24px rgba(30, 111, 253, 0.2)'
+                }}>
+                  <Play size={28} fill="var(--primary)" />
+                </div>
+                <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '8px' }}>Guided Video Tour Sandbox</h3>
+                <p style={{ fontSize: '12.5px', color: '#94a3b8', maxWidth: '380px', margin: '0 auto 24px auto', lineHeight: '1.5' }}>
+                  Explore how PropDeal manages plots, billing invoicing, agent commissions, and instant client lead collection.
+                </p>
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  style={{ padding: '8px 20px', fontSize: '12.5px', fontWeight: '700', borderRadius: '8px' }}
+                  onClick={() => handleNavClick('plots')}
+                >
+                  Browse Plots Showcase
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
