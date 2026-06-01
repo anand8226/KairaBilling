@@ -1,0 +1,42 @@
+[
+  {
+    "id": "L001",
+    "name": "Rahul Sharma",
+    "mobile": "98xxxxxx12",
+    "requirement": "2BHK Flat",
+    "status": "Follow-up",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop"
+  },
+  {
+    "id": "L002",
+    "name": "Amit Verma",
+    "mobile": "99xxxxxx45",
+    "requirement": "Plot",
+    "status": "New Lead",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop"
+  },
+  {
+    "id": "L003",
+    "name": "Neha Gupta",
+    "mobile": "97xxxxxx88",
+    "requirement": "3BHK Flat",
+    "status": "Interested",
+    "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop"
+  },
+  {
+    "id": "L004",
+    "name": "Vikash Patel",
+    "mobile": "91xxxxxx32",
+    "requirement": "House",
+    "status": "Follow-up",
+    "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop"
+  },
+  {
+    "id": "L005",
+    "name": "Pooja Singh",
+    "mobile": "90xxxxxx21",
+    "requirement": "Shop",
+    "status": "New Lead",
+    "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop"
+  }
+]

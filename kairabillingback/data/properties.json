@@ -1,0 +1,37 @@
+[
+  {
+    "id": "P001",
+    "name": "Green Villa",
+    "type": "House",
+    "status": "Available",
+    "price": 5000000
+  },
+  {
+    "id": "P002",
+    "name": "Sky Heights",
+    "type": "Flat",
+    "status": "Sold",
+    "price": 7500000
+  },
+  {
+    "id": "P003",
+    "name": "Sunset Apartments",
+    "type": "Flat",
+    "status": "Available",
+    "price": 6000000
+  },
+  {
+    "id": "P004",
+    "name": "Silver Oak",
+    "type": "House",
+    "status": "Rented",
+    "price": 25000
+  },
+  {
+    "id": "P005",
+    "name": "Prime Commercial",
+    "type": "Shop",
+    "status": "Available",
+    "price": 12000000
+  }
+]
