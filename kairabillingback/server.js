@@ -508,6 +508,37 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// 2.5. Settings: Fetch Primary Super Admin Contact Number Dynamically (No hardcoding)
+app.get('/api/settings/contact', async (req, res) => {
+  try {
+    let phoneNumber = "8226811810"; // Default baseline fallback if no Super Admin registered in DB
+    let countryCode = "+91";
+    
+    if (useMySQL) {
+      const [rows] = await dbPool.query("SELECT PhoneNumber, CountryCode FROM Users WHERE Role = 'Super Admin' LIMIT 1");
+      if (rows.length > 0) {
+        phoneNumber = rows[0].PhoneNumber;
+        countryCode = rows[0].CountryCode || "+91";
+      }
+    } else {
+      const users = readJSON(localUsersFile);
+      const admin = users.find(u => u.role === 'Super Admin');
+      if (admin) {
+        phoneNumber = admin.phoneNumber;
+        countryCode = admin.countryCode || "+91";
+      }
+    }
+    
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    const cleanCode = countryCode.replace(/\D/g, '');
+    const formatted = cleanPhone.length === 10 ? (cleanCode || '91') + cleanPhone : cleanPhone;
+    
+    res.json({ whatsappNumber: formatted });
+  } catch (error) {
+    res.json({ whatsappNumber: "918226811810" });
+  }
+});
+
 // 3. Properties: Fetch Registry
 app.get('/api/properties', async (req, res) => {
   try {
@@ -648,7 +679,8 @@ app.post('/api/leads', async (req, res) => {
   try {
     if (useMySQL) {
       const [rows] = await dbPool.query('SELECT id FROM Leads');
-      const nextIdNum = rows.length + 1;
+      const ids = rows.map(r => parseInt(r.id.replace('L', ''), 10)).filter(num => !isNaN(num));
+      const nextIdNum = ids.length > 0 ? Math.max(...ids) + 1 : 1;
       const id = `L${String(nextIdNum).padStart(3, '0')}`;
 
       await dbPool.query(
@@ -658,7 +690,9 @@ app.post('/api/leads', async (req, res) => {
       res.status(201).json({ id, name, mobile, requirement, status, avatar });
     } else {
       const leads = readJSON(leadsFile);
-      const id = `L${String(leads.length + 1).padStart(3, '0')}`;
+      const ids = leads.map(l => parseInt(l.id.replace('L', ''), 10)).filter(num => !isNaN(num));
+      const nextIdNum = ids.length > 0 ? Math.max(...ids) + 1 : 1;
+      const id = `L${String(nextIdNum).padStart(3, '0')}`;
 
       const newLead = { id, name, mobile, requirement, status, avatar };
       leads.push(newLead);

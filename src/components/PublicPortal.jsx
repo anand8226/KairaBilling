@@ -5,9 +5,11 @@ import {
   BarChart3, Users, CloudLightning, Contact2, GitBranch, Play, Check, X, ChevronRight, Monitor, Smartphone
 } from 'lucide-react';
 
-const DEALER_WHATSAPP = "918226811810"; 
-
 export default function PublicPortal({ properties = [], onLoginTrigger, onSignupTrigger }) {
+  // Dynamic default phone setting fetched from backend DB Settings (fallback if no user logged in on this laptop)
+  const [defaultDealerPhone, setDefaultDealerPhone] = useState("918226811810");
+
+  const DEALER_WHATSAPP = localStorage.getItem('propdeal_user_phone') || defaultDealerPhone;
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'plots' | 'about' | 'contact'
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All');
@@ -31,7 +33,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
   // Database-fetched leads for dynamic previewing
   const [dbLeads, setDbLeads] = useState([]);
 
-  // Fetch leads on mount to populate CRM & Pipeline previews dynamically from MySQL DB
+  // Fetch leads and dynamic settings on mount to populate previews and target phone numbers
   useEffect(() => {
     const fetchLeads = async () => {
       try {
@@ -44,8 +46,24 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
         console.error("Failed to fetch database leads for landing page previews:", error);
       }
     };
+    
+    const fetchContactSetting = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/settings/contact');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.whatsappNumber) {
+            setDefaultDealerPhone(data.whatsappNumber);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch dynamic settings contact phone:", error);
+      }
+    };
+
     fetchLeads();
-  }, [success]); // Re-fetch when a new inquiry succeeds!
+    fetchContactSetting();
+  }, [success]);
 
   // Dynamic Statistics Calculations based on real database records
   const soldProperties = properties.filter(p => p.status === 'Sold');

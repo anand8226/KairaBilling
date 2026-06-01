@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Home, ArrowLeft, MessageSquare, Send, CheckCircle2 } from 'lucide-react';
 
 // You can configure your business WhatsApp number here (include country code, no "+" or spaces)
-const DEALER_WHATSAPP = "918226811810"; 
-
 export default function PublicInquiryScreen({ onSwitchToLogin }) {
+  const DEALER_WHATSAPP = localStorage.getItem('propdeal_user_phone') || "918226811810";
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [requirement, setRequirement] = useState('2BHK Flat');
