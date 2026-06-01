@@ -3,7 +3,26 @@ import { Home, ArrowLeft, MessageSquare, Send, CheckCircle2 } from 'lucide-react
 
 // You can configure your business WhatsApp number here (include country code, no "+" or spaces)
 export default function PublicInquiryScreen({ onSwitchToLogin }) {
-  const DEALER_WHATSAPP = localStorage.getItem('propdeal_user_phone') || "918226811810";
+  const [defaultDealerPhone, setDefaultDealerPhone] = React.useState("918226811810");
+
+  React.useEffect(() => {
+    const fetchContactSetting = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/settings/contact');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.whatsappNumber) {
+            setDefaultDealerPhone(data.whatsappNumber);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch dynamic settings contact phone:", error);
+      }
+    };
+    fetchContactSetting();
+  }, []);
+
+  const DEALER_WHATSAPP = localStorage.getItem('propdeal_user_phone') || defaultDealerPhone;
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [requirement, setRequirement] = useState('2BHK Flat');

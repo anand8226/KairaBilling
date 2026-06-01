@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Home, Calendar, TrendingUp, Users } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import StatsGrid from './components/StatsGrid';
@@ -506,6 +507,77 @@ export default function App() {
       setProperties(properties.filter(p => p.id !== id));
     }
   };
+  
+  // Calculate dynamic sales chart coordinates driven strictly by the MySQL deals database
+  const getDynamicChartPoints = () => {
+    const baseHeight = 160;
+    
+    if (!deals || deals.length === 0) {
+      return {
+        path: "M 0,160 Q 80,40 160,110 T 320,60 T 480,120 T 600,80",
+        areaPath: "M 0,160 Q 80,40 160,110 T 320,60 T 480,120 T 600,80 L 600,200 L 0,200 Z",
+        points: [
+          { cx: 80, cy: 50 },
+          { cx: 160, cy: 110 },
+          { cx: 240, cy: 85 },
+          { cx: 320, cy: 60 },
+          { cx: 400, cy: 100 },
+          { cx: 480, cy: 120 },
+          { cx: 560, cy: 90 }
+        ]
+      };
+    }
+
+    const maxVal = Math.max(...deals.map(d => parseFloat(d.tokenAmount || 0) + parseFloat(d.advancePayment || 0) + parseFloat(d.finalPayment || 0)), 100000);
+    const sortedDeals = [...deals].sort((a, b) => new Date(a.saleDate) - new Date(b.saleDate));
+    const pointsCount = 7;
+    const stepX = 600 / (pointsCount - 1);
+
+    const dataPoints = Array.from({ length: pointsCount }, (_, i) => {
+      const x = i * stepX;
+      const deal = sortedDeals[i % sortedDeals.length];
+      const val = deal ? (parseFloat(deal.tokenAmount || 0) + parseFloat(deal.advancePayment || 0) + parseFloat(deal.finalPayment || 0)) : 0;
+      const y = baseHeight - (val / maxVal) * 120;
+      return { x, y, val };
+    });
+
+    let path = `M 0,${dataPoints[0].y}`;
+    for (let i = 1; i < dataPoints.length; i++) {
+      const prev = dataPoints[i - 1];
+      const curr = dataPoints[i];
+      const cpX1 = prev.x + stepX / 2;
+      const cpY1 = prev.y;
+      const cpX2 = curr.x - stepX / 2;
+      const cpY2 = curr.y;
+      path += ` C ${cpX1},${cpY1} ${cpX2},${cpY2} ${curr.x},${curr.y}`;
+    }
+
+    const areaPath = `${path} L 600,200 L 0,200 Z`;
+
+    return {
+      path,
+      areaPath,
+      points: dataPoints.map(p => ({ cx: p.x, cy: p.y, val: p.val }))
+    };
+  };
+
+  const chartData = getDynamicChartPoints();
+
+  // Calculate dynamic database-driven inventory alerts based on active database listings
+  const getDynamicLowStockAlerts = () => {
+    const types = ['Plot', 'Flat', 'House', 'Shop'];
+    return types.map((type, idx) => {
+      const count = properties.filter(p => p.status === 'Available' && p.type === type).length;
+      return {
+        id: String(idx + 1),
+        title: `${type} Inventory Buffer`,
+        count: count,
+        type: type
+      };
+    }).sort((a, b) => a.count - b.count);
+  };
+
+  const lowStockAlerts = getDynamicLowStockAlerts();
 
   // Render public views if not authenticated
   if (!isAuthenticated) {
@@ -537,6 +609,7 @@ export default function App() {
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
         userRole={userRole}
+        onLogout={handleLogout}
       />
 
       {/* Main Panel Content Area */}
@@ -562,14 +635,235 @@ export default function App() {
         {/* Dynamic content rendering based on active tab */}
         {activeTab === 'dashboard' ? (
           <>
-            {/* KPI Statistics */}
+            {/* 1. Dynamic KPI Statistics Grid (Admin, Manager, Agent) */}
             <StatsGrid 
-              totalProperties={totalProperties}
-              totalBuyers={totalBuyers}
-              openRequirements={openRequirements}
-              closedDeals={closedDeals}
+              userRole={userRole}
+              properties={properties}
+              leads={leads}
+              deals={deals}
+              requirements={requirements}
+              visits={visits}
               commissionEarned={commissionEarned}
             />
+
+            {/* 2. Top Interactive Section: Sales Overview SVG Graph + Top Products/Listings Side-by-Side */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '24px', marginBottom: '24px' }}>
+              {/* Sales Overview Line Chart Card */}
+              <div className="dashboard-card" style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)' }}>Sales Overview</h3>
+                  <select className="card-filter-select" style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '6px' }}>
+                    <option>This Week</option>
+                    <option>This Month</option>
+                    <option>This Year</option>
+                  </select>
+                </div>
+                
+                {/* SVG Curve Chart */}
+                <div style={{ position: 'relative', height: '220px', width: '100%' }}>
+                  <svg viewBox="0 0 600 200" style={{ width: '100%', height: '100%' }}>
+                    <defs>
+                      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2"/>
+                        <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.0"/>
+                      </linearGradient>
+                    </defs>
+                    {/* Grid Y lines */}
+                    <line x1="0" y1="30" x2="600" y2="30" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+                    <line x1="0" y1="70" x2="600" y2="70" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+                    <line x1="0" y1="110" x2="600" y2="110" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+                    <line x1="0" y1="150" x2="600" y2="150" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="3 3" />
+                    
+                    {/* Curve path */}
+                    <path d={chartData.path} fill="none" stroke="var(--primary)" strokeWidth="3" />
+                    <path d={chartData.areaPath} fill="url(#chartGrad)" />
+                    
+                    {/* Chart Points */}
+                    {chartData.points.map((pt, index) => (
+                      <circle 
+                        key={index}
+                        cx={pt.cx} 
+                        cy={pt.cy} 
+                        r="5" 
+                        fill="var(--primary)" 
+                        stroke="#fff" 
+                        strokeWidth="2.5" 
+                        title={`Deals Revenue: ₹${new Intl.NumberFormat('en-IN').format(pt.val)}`}
+                      />
+                    ))}
+                  </svg>
+                </div>
+                
+                {/* X labels */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 8px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', marginTop: '8px' }}>
+                  <span>Mon</span>
+                  <span>Tue</span>
+                  <span>Wed</span>
+                  <span>Thu</span>
+                  <span>Fri</span>
+                  <span>Sat</span>
+                  <span>Sun</span>
+                </div>
+              </div>
+
+              {/* Top Selling Products / Top Performing Listings Card */}
+              <div className="dashboard-card" style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-main)' }}>
+                    {userRole === 'Super Admin' ? 'Top Selling Properties' : 'Top Listings Categories'}
+                  </h3>
+                  <button type="button" onClick={() => setActiveTab('properties')} style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--primary)' }}>View All</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {properties.slice(0, 5).map((p, idx) => (
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: idx < 4 ? '1px solid var(--border-color)' : 'none', paddingBottom: idx < 4 ? '10px' : '0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-muted)', width: '16px' }}>{idx + 1}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '140px' }}>{p.name}</span>
+                          <span style={{ fontSize: '10.5px', color: 'var(--text-light)', fontWeight: '500' }}>{p.type} • {p.status}</span>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-main)' }}>
+                        {new Intl.NumberFormat('en-IN', { notation: 'compact' }).format(p.price)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Middle Section: Low Inventory Alerts, Recent Invoices, and Recent Payments Side-by-Side */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+              
+              {/* Card 1: High Demand / Low Stock Alerts */}
+              <div className="dashboard-card" style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>Low Stock Alerts</h3>
+                  <span className="badge danger" style={{ fontSize: '9px', padding: '2px 6px', borderRadius: '4px' }}>Critical</span>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {lowStockAlerts.map((item) => (
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-main)', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '120px' }}>{item.title}</span>
+                        <span style={{ fontSize: '10px', color: 'var(--text-light)' }}>Category: {item.type}</span>
+                      </div>
+                      <span className={`badge ${item.count === 0 ? 'danger' : 'warning'}`} style={{ fontSize: '9px', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
+                        {item.count === 0 ? 'Out of Stock' : `${item.count} Available`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 2: Recent Invoices (Database-Driven Sold Properties) */}
+              <div className="dashboard-card" style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>Recent Invoices</h3>
+                  <button type="button" onClick={() => setActiveTab('deals')} style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--primary)' }}>View All</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {deals && deals.length > 0 ? (
+                    [...deals].reverse().slice(0, 4).map((d) => {
+                      const totalAmount = parseFloat(d.tokenAmount || 0) + parseFloat(d.advancePayment || 0) + parseFloat(d.finalPayment || 0);
+                      return (
+                        <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontSize: '12.5px', fontWeight: '700', color: 'var(--primary)' }}>INV-{d.id}</span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '110px' }}>{d.buyerName}</span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-main)' }}>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalAmount)}</span>
+                            <span style={{ fontSize: '9px', color: 'var(--success-icon)', fontWeight: '700' }}>Paid</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ fontSize: '12.5px', color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>
+                      No sold properties in database yet.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Card 3: Recent Payments / Active CRM Leads */}
+              <div className="dashboard-card" style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)' }}>Recent Payments</h3>
+                  <button type="button" onClick={() => setActiveTab('customers')} style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--primary)' }}>View All</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {leads.slice(0, 4).map((l) => (
+                    <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <img 
+                          src={l.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop'} 
+                          alt={l.name} 
+                          style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                        />
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontSize: '12.5px', fontWeight: '700', color: 'var(--text-main)' }}>{l.name}</span>
+                          <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{l.requirement}</span>
+                        </div>
+                      </div>
+                      <span className="badge success" style={{ fontSize: '8.5px', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
+                        {l.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* 4. Bottom ERP Status Strip */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', background: '#fff', padding: '16px 24px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderRight: '1px solid var(--border-color)' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--info-bg)', color: 'var(--info-icon)', display: 'flex', alignItems: 'center', justify: 'center' }}>
+                  <Home size={16} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '10.5px', color: 'var(--text-light)', textTransform: 'uppercase', fontWeight: '700' }}>Total Products</span>
+                  <span style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)' }}>{properties.length} Listings</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderRight: '1px solid var(--border-color)' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--warning-bg)', color: 'var(--warning-icon)', display: 'flex', alignItems: 'center', justify: 'center' }}>
+                  <Calendar size={16} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '10.5px', color: 'var(--text-light)', textTransform: 'uppercase', fontWeight: '700' }}>Rented / Booked</span>
+                  <span style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)' }}>{properties.filter(p => p.status === 'Rented' || p.status === 'Booked').length} Assets</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderRight: '1px solid var(--border-color)' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--danger-bg)', color: 'var(--danger-icon)', display: 'flex', alignItems: 'center', justify: 'center' }}>
+                  <TrendingUp size={16} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '10.5px', color: 'var(--text-light)', textTransform: 'uppercase', fontWeight: '700' }}>Out of Stock (Sold)</span>
+                  <span style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)' }}>{properties.filter(p => p.status === 'Sold').length} Sold</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--success-bg)', color: 'var(--success-icon)', display: 'flex', alignItems: 'center', justify: 'center' }}>
+                  <Users size={16} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '10.5px', color: 'var(--text-light)', textTransform: 'uppercase', fontWeight: '700' }}>Today's Orders</span>
+                  <span style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)' }}>{leads.filter(l => l.status === 'New Lead').length} Pending</span>
+                </div>
+              </div>
+            </div>
 
             {/* Quick Actions Bar */}
             <QuickActions 
@@ -578,50 +872,6 @@ export default function App() {
               onSellProperty={() => setSellModalOpen(true)}
               userRole={userRole}
             />
-
-            {/* Main Interactive Grid */}
-            <div className="dashboard-grid">
-              <div className="grid-column">
-                <PropertiesTable 
-                  properties={properties} 
-                  searchQuery={searchQuery}
-                  onUpdateStatus={handleUpdatePropertyStatus}
-                  onDeleteProperty={handleDeleteProperty}
-                  userRole={userRole}
-                  onSellProperty={handleSellPropertyTrigger}
-                />
-                
-                <PaymentOverview properties={properties} />
-              </div>
-
-              <div className="grid-column">
-                <LeadsTable 
-                  leads={leads} 
-                  searchQuery={searchQuery}
-                  userRole={userRole}
-                  agents={agents}
-                  onAssignLead={handleAssignLead}
-                />
-
-                <PropertyStatusChart 
-                  availableCount={availableProperties}
-                  soldCount={soldProperties}
-                  rentedCount={rentedProperties}
-                  reservedCount={0}
-                />
-              </div>
-            </div>
-
-            {/* Bottom Property Categories breakdown */}
-            <div style={{ marginTop: '24px' }}>
-              <CategoriesSection 
-                houseCount={houseCount}
-                flatCount={flatCount}
-                plotCount={plotCount}
-                shopCount={shopCount}
-                officeCount={officeCount}
-              />
-            </div>
           </>
         ) : activeTab === 'properties' ? (
           <div style={{ animation: 'fade-in 0.4s ease-out' }}>
