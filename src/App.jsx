@@ -195,6 +195,11 @@ export default function App() {
     localStorage.setItem('propdeal_user_role', userObj.role);
     localStorage.setItem('propdeal_user_avatar', userObj.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
     
+    if (userObj.phoneNumber) {
+      const digits = userObj.phoneNumber.replace(/\D/g, '');
+      localStorage.setItem('propdeal_user_phone', digits.length === 10 ? '91' + digits : digits);
+    }
+    
     setUserId(userObj.id);
     setUserName(userObj.fullName);
     setUserRole(userObj.role);
