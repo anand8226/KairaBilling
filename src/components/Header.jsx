@@ -21,6 +21,23 @@ export default function Header({
   const [customUrl, setCustomUrl] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("⚠️ Photo size is too large! Please choose an image smaller than 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSelectedAvatar(reader.result); // Base64 data URL
+      setCustomUrl('');
+    };
+    reader.readAsDataURL(file);
+  };
+
   const PRESET_AVATARS = [
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
@@ -333,6 +350,40 @@ export default function Header({
                   }}
                 />
               </div>
+
+              {/* Local File / Gallery Upload Input */}
+              <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '16px', marginTop: '10px' }}>
+                <label htmlFor="gallery-avatar-input" style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                  Or Upload from Gallery / Laptop
+                </label>
+                <input 
+                  type="file" 
+                  id="gallery-avatar-input"
+                  accept="image/*"
+                  style={{ fontSize: '12.5px', color: 'var(--text-main)', width: '100%' }}
+                  onChange={handleFileChange}
+                />
+                <span style={{ fontSize: '10px', color: 'var(--text-light)', display: 'block', marginTop: '4px' }}>
+                  Supports JPG, PNG (Max size: 2MB)
+                </span>
+              </div>
+
+              {/* Dynamic Selection Preview */}
+              {selectedAvatar && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', borderTop: '1px dashed var(--border-color)', paddingTop: '16px', marginTop: '10px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>Selected Photo Preview</span>
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    border: '3px solid var(--primary)',
+                    overflow: 'hidden',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}>
+                    <img src={selectedAvatar} alt="Live Selected Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                </div>
+              )}
 
             </div>
 

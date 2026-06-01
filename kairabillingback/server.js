@@ -102,7 +102,7 @@ async function initDB() {
         CompanyName VARCHAR(150),
         City VARCHAR(100),
         State VARCHAR(100),
-        ProfileImage VARCHAR(500),
+        ProfileImage MEDIUMTEXT,
         IsActive BIT DEFAULT 1,
         CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
         UpdatedDate DATETIME NULL
@@ -235,6 +235,9 @@ async function initDB() {
     } catch (e) {}
     try {
       await dbPool.query("ALTER TABLE Properties ADD COLUMN propertyImage VARCHAR(500) NULL;");
+    } catch (e) {}
+    try {
+      await dbPool.query("ALTER TABLE Users MODIFY COLUMN ProfileImage MEDIUMTEXT NULL;");
     } catch (e) {}
 
     await dbPool.query(`
