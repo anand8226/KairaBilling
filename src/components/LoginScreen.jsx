@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Home } from 'lucide-react';
+import { Eye, EyeOff, Home, ArrowLeft } from 'lucide-react';
 
-export default function LoginScreen({ onLoginSuccess, onSwitchToSignup }) {
+export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackToWebsite }) {
   const [countryCode, setCountryCode] = useState('+91');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -53,6 +53,17 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup }) {
       <div className="auth-left-col">
         <div className="auth-form-container">
           
+          {onBackToWebsite && (
+            <button 
+              type="button" 
+              className="auth-link" 
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '18px', fontSize: '13px', fontWeight: '600' }}
+              onClick={onBackToWebsite}
+            >
+              <ArrowLeft size={14} /> Back to Website
+            </button>
+          )}
+
           {/* Logo Section */}
           <div className="auth-brand-row">
             <div className="auth-logo-box">
@@ -179,6 +190,16 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup }) {
               Register
             </a>
           </div>
+
+          {/* Public customer inquiry switcher link */}
+          {onBackToWebsite && (
+            <div className="auth-switcher-row" style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border-color)' }}>
+              <span>Are you a Client / Buyer? </span>
+              <a href="#inquiry" className="auth-link" style={{ fontWeight: '700', color: 'var(--success-icon)' }} onClick={(e) => { e.preventDefault(); onBackToWebsite(); }}>
+                Browse Plots & Submit Inquiry
+              </a>
+            </div>
+          )}
 
           {/* Footer copyright list */}
           <div className="auth-footer-row">

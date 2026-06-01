@@ -11,6 +11,7 @@ import CategoriesSection from './components/CategoriesSection';
 import { AddPropertyModal, AddCustomerModal, SellPropertyModal, InvoiceModal } from './components/FormModals';
 import AuthScreen from './components/AuthScreen';
 import TeamSection from './components/TeamSection';
+import PublicPortal from './components/PublicPortal';
 
 // Property Dealer ERP Custom View Modules
 import BuyRequirementsSection from './components/BuyRequirementsSection';
@@ -57,6 +58,9 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('propdeal_auth') === 'true';
   });
+
+  // Manage public client navigation state
+  const [publicViewMode, setPublicViewMode] = useState('portal'); // 'portal' | 'login' | 'signup'
   
   const [userName, setUserName] = useState(() => {
     return localStorage.getItem('propdeal_user_name') || '';
@@ -149,9 +153,7 @@ export default function App() {
       }
     }
 
-    if (isAuthenticated) {
-      loadData();
-    }
+    loadData();
   }, [isAuthenticated, userRole]);
 
   /* ============================================================================
@@ -202,6 +204,7 @@ export default function App() {
     setDeals([]);
     setActiveTab('dashboard');
     setSearchQuery('');
+    setPublicViewMode('portal');
   };
 
   const handleAssignLead = async (leadId, agentName) => {
@@ -481,9 +484,25 @@ export default function App() {
     }
   };
 
-  // Render auth overlay if not authenticated
+  // Render public views if not authenticated
   if (!isAuthenticated) {
-    return <AuthScreen onLoginSuccess={handleLoginSuccess} />;
+    if (publicViewMode === 'portal') {
+      return (
+        <PublicPortal 
+          properties={properties} 
+          onLoginTrigger={() => setPublicViewMode('login')}
+          onSignupTrigger={() => setPublicViewMode('signup')}
+        />
+      );
+    }
+    
+    return (
+      <AuthScreen 
+        onLoginSuccess={handleLoginSuccess} 
+        initialMode={publicViewMode === 'login' ? 'login' : 'register'}
+        onBackToWebsite={() => setPublicViewMode('portal')}
+      />
+    );
   }
 
   return (
