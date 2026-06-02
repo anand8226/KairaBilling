@@ -237,6 +237,9 @@ async function initDB() {
       await dbPool.query("ALTER TABLE Properties ADD COLUMN propertyImage VARCHAR(500) NULL;");
     } catch (e) {}
     try {
+      await dbPool.query("ALTER TABLE Properties MODIFY COLUMN propertyImage MEDIUMTEXT NULL;");
+    } catch (e) {}
+    try {
       await dbPool.query("ALTER TABLE Users MODIFY COLUMN ProfileImage MEDIUMTEXT NULL;");
     } catch (e) {}
 
@@ -295,9 +298,47 @@ async function initDB() {
         agreementFile VARCHAR(255) NULL,
         commissionPercent DECIMAL(5,2) DEFAULT 2.00,
         commissionEarned DECIMAL(15,2) DEFAULT 0.00,
-        saleDate VARCHAR(50) NOT NULL
+        saleDate VARCHAR(50) NOT NULL,
+        paymentMethod VARCHAR(100) DEFAULT 'Cash',
+        paymentDetails VARCHAR(255) NULL
       );
     `);
+
+    // Gracefully update columns if they don't exist
+    try {
+      await dbPool.query("ALTER TABLE Deals ADD COLUMN paymentMethod VARCHAR(100) DEFAULT 'Cash';");
+    } catch (e) {}
+    try {
+      await dbPool.query("ALTER TABLE Deals ADD COLUMN paymentDetails VARCHAR(255) NULL;");
+    } catch (e) {}
+
+    // Provision Stored Procedure for Detailed Payment Report
+    try {
+      await dbPool.query('DROP PROCEDURE IF EXISTS sp_GetDetailedPayments;');
+      await dbPool.query(`
+        CREATE PROCEDURE sp_GetDetailedPayments()
+        BEGIN
+          SELECT 
+            d.id,
+            d.propertyId,
+            d.propertyName,
+            d.buyerName,
+            d.tokenAmount,
+            d.advancePayment,
+            d.finalPayment,
+            d.agreementFile,
+            d.commissionPercent,
+            d.commissionEarned,
+            d.saleDate,
+            d.paymentMethod,
+            d.paymentDetails
+          FROM Deals d;
+        END;
+      `);
+      console.log('✅ MySQL Stored Procedure "sp_GetDetailedPayments" provisioned.');
+    } catch (e) {
+      console.error('Failed to create sp_GetDetailedPayments:', e.message);
+    }
 
     // Bootstrap MySQL baseline items if empty
     const [rowsProps] = await dbPool.query('SELECT COUNT(*) as count FROM Properties');
@@ -588,8 +629,23 @@ app.post('/api/properties', async (req, res) => {
   try {
     if (useMySQL) {
       const [rows] = await dbPool.query('SELECT id FROM Properties');
-      const nextIdNum = Math.max(...rows.map(r => parseInt(r.id.replace('P', ''), 10)), 5) + 1;
+      let nextIdNum = 6;
+      if (rows && rows.length > 0) {
+        const ids = rows
+          .map(r => {
+            if (!r.id) return null;
+            // Robustly extract digits only from ID, e.g. "P005" -> 5
+            const num = parseInt(r.id.replace(/[^0-9]/g, ''), 10);
+            return isNaN(num) ? null : num;
+          })
+          .filter(n => n !== null);
+        if (ids.length > 0) {
+          nextIdNum = Math.max(...ids, 5) + 1;
+        }
+      }
       const id = `P${String(nextIdNum).padStart(3, '0')}`;
+
+      console.log(`[Properties API] Attempting to insert property with robust ID: ${id}`);
 
       await dbPool.query(
         'INSERT INTO Properties (id, name, type, status, price, purchasePrice, vendorName, acquisitionDate, ownerName, ownerMobile, propertyImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -598,7 +654,19 @@ app.post('/api/properties', async (req, res) => {
       res.status(201).json({ id, name, type, status, price: parseFloat(price), purchasePrice: pCost, vendorName: vendor, acquisitionDate: aDate, ownerName: oName, ownerMobile: oMobile, propertyImage: pImage });
     } else {
       const props = readJSON(propertiesFile);
-      const nextIdNum = Math.max(...props.map(p => parseInt(p.id.replace('P', ''), 10)), 5) + 1;
+      let nextIdNum = 6;
+      if (props && props.length > 0) {
+        const ids = props
+          .map(p => {
+            if (!p.id) return null;
+            const num = parseInt(p.id.replace(/[^0-9]/g, ''), 10);
+            return isNaN(num) ? null : num;
+          })
+          .filter(n => n !== null);
+        if (ids.length > 0) {
+          nextIdNum = Math.max(...ids, 5) + 1;
+        }
+      }
       const id = `P${String(nextIdNum).padStart(3, '0')}`;
 
       const newProp = { id, name, type, status, price: parseFloat(price), purchasePrice: pCost, vendorName: vendor, acquisitionDate: aDate, ownerName: oName, ownerMobile: oMobile, propertyImage: pImage };
@@ -607,7 +675,8 @@ app.post('/api/properties', async (req, res) => {
       res.status(201).json(newProp);
     }
   } catch (error) {
-    res.status(500).json({ error: 'Could not write property record.' });
+    console.error('❌ [Properties API Error] Failed to persist property record:', error);
+    res.status(500).json({ error: 'Could not write property record.', details: error.message });
   }
 });
 
@@ -910,11 +979,13 @@ app.get('/api/deals', async (req, res) => {
         agreementFile: r.agreementFile || '',
         commissionPercent: parseFloat(r.commissionPercent || 0),
         commissionEarned: parseFloat(r.commissionEarned || 0),
-        saleDate: r.saleDate
+        saleDate: r.saleDate,
+        paymentMethod: r.paymentMethod || 'Cash',
+        paymentDetails: r.paymentDetails || ''
       })));
     } else {
       res.json([
-        { id: 'D001', propertyId: 'P002', propertyName: 'Sky Heights', buyerName: 'Neha Gupta', tokenAmount: 100000, advancePayment: 1500000, finalPayment: 5900000, agreementFile: 'Contract_P002.pdf', commissionPercent: 2.0, commissionEarned: 150000, saleDate: '2026-05-20' }
+        { id: 'D001', propertyId: 'P002', propertyName: 'Sky Heights', buyerName: 'Neha Gupta', tokenAmount: 100000, advancePayment: 1500000, finalPayment: 5900000, agreementFile: 'Contract_P002.pdf', commissionPercent: 2.0, commissionEarned: 150000, saleDate: '2026-05-20', paymentMethod: 'Cheque / DD', paymentDetails: 'Chq: 001278' }
       ]);
     }
   } catch (error) {
@@ -923,7 +994,7 @@ app.get('/api/deals', async (req, res) => {
 });
 
 app.post('/api/deals', async (req, res) => {
-  const { propertyId, propertyName, buyerName, tokenAmount, advancePayment, finalPayment, agreementFile, commissionPercent, commissionEarned, saleDate } = req.body;
+  const { propertyId, propertyName, buyerName, tokenAmount, advancePayment, finalPayment, agreementFile, commissionPercent, commissionEarned, saleDate, paymentMethod, paymentDetails } = req.body;
   if (!propertyId || !propertyName || !buyerName || !saleDate) {
     return res.status(400).json({ error: 'Essential deal parameters are missing.' });
   }
@@ -933,6 +1004,8 @@ app.post('/api/deals', async (req, res) => {
   const fin = parseFloat(finalPayment || 0);
   const commPct = parseFloat(commissionPercent || 2.00);
   const commEarn = parseFloat(commissionEarned || (tok + adv + fin) * (commPct / 100));
+  const payMethod = paymentMethod || 'Cash';
+  const payDetails = paymentDetails || '';
 
   try {
     if (useMySQL) {
@@ -942,19 +1015,51 @@ app.post('/api/deals', async (req, res) => {
 
       // Insert deal record
       await dbPool.query(
-        'INSERT INTO Deals (id, propertyId, propertyName, buyerName, tokenAmount, advancePayment, finalPayment, agreementFile, commissionPercent, commissionEarned, saleDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [id, propertyId, propertyName, buyerName, tok, adv, fin, agreementFile || 'Agreement_Signed.pdf', commPct, commEarn, saleDate]
+        'INSERT INTO Deals (id, propertyId, propertyName, buyerName, tokenAmount, advancePayment, finalPayment, agreementFile, commissionPercent, commissionEarned, saleDate, paymentMethod, paymentDetails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [id, propertyId, propertyName, buyerName, tok, adv, fin, agreementFile || 'Agreement_Signed.pdf', commPct, commEarn, saleDate, payMethod, payDetails]
       );
 
       // Update target property status to Sold
       await dbPool.query('UPDATE Properties SET status = "Sold", price = ? WHERE id = ?', [(tok + adv + fin), propertyId]);
 
-      res.status(201).json({ id, propertyId, propertyName, buyerName, tokenAmount: tok, advancePayment: adv, finalPayment: fin, agreementFile: agreementFile || 'Agreement_Signed.pdf', commissionPercent: commPct, commissionEarned: commEarn, saleDate });
+      res.status(201).json({ id, propertyId, propertyName, buyerName, tokenAmount: tok, advancePayment: adv, finalPayment: fin, agreementFile: agreementFile || 'Agreement_Signed.pdf', commissionPercent: commPct, commissionEarned: commEarn, saleDate, paymentMethod: payMethod, paymentDetails: payDetails });
     } else {
-      res.status(201).json({ id: 'D999', propertyId, propertyName, buyerName, tokenAmount: tok, advancePayment: adv, finalPayment: fin, agreementFile: agreementFile || 'Agreement_Signed.pdf', commissionPercent: commPct, commissionEarned: commEarn, saleDate });
+      res.status(201).json({ id: 'D999', propertyId, propertyName, buyerName, tokenAmount: tok, advancePayment: adv, finalPayment: fin, agreementFile: agreementFile || 'Agreement_Signed.pdf', commissionPercent: commPct, commissionEarned: commEarn, saleDate, paymentMethod: payMethod, paymentDetails: payDetails });
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Could not write deal record.' });
+  }
+});
+
+// 14.5 Payments Report (Executes Stored Procedure sp_GetDetailedPayments)
+app.get('/api/payments/report', async (req, res) => {
+  try {
+    if (useMySQL) {
+      const [result] = await dbPool.query('CALL sp_GetDetailedPayments()');
+      const rows = result[0];
+      res.json(rows.map(r => ({
+        id: r.id,
+        propertyId: r.propertyId,
+        propertyName: r.propertyName,
+        buyerName: r.buyerName,
+        tokenAmount: parseFloat(r.tokenAmount || 0),
+        advancePayment: parseFloat(r.advancePayment || 0),
+        finalPayment: parseFloat(r.finalPayment || 0),
+        agreementFile: r.agreementFile || '',
+        commissionPercent: parseFloat(r.commissionPercent || 0),
+        commissionEarned: parseFloat(r.commissionEarned || 0),
+        saleDate: r.saleDate,
+        paymentMethod: r.paymentMethod || 'Cash',
+        paymentDetails: r.paymentDetails || ''
+      })));
+    } else {
+      // Local fallback simulation (just reads local deals memory data or mock)
+      res.status(501).json({ error: 'Stored Procedures require MySQL connectivity.' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Could not fetch detailed payments report.' });
   }
 });
 
