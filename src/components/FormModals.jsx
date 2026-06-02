@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Image as ImageIcon } from 'lucide-react';
 
 /* ============================================================================
    Add Property Modal Form
@@ -15,6 +15,22 @@ export function AddPropertyModal({ isOpen, onClose, onSubmit, userRole = 'Agent'
   const [ownerName, setOwnerName] = useState('');
   const [ownerMobile, setOwnerMobile] = useState('');
   const [propertyImage, setPropertyImage] = useState('');
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("⚠️ Photo size is too large! Please choose an image smaller than 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPropertyImage(reader.result); // Base64 data URL
+    };
+    reader.readAsDataURL(file);
+  };
 
   if (!isOpen) return null;
 
@@ -142,16 +158,108 @@ export function AddPropertyModal({ isOpen, onClose, onSubmit, userRole = 'Agent'
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="prop-image">Property Image URL (Optional)</label>
+              <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-main)' }}>Property Display Photo *</label>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '12px', alignItems: 'center' }}>
+                  {/* File Upload Trigger */}
+                  <div 
+                    style={{
+                      border: '2px dashed var(--border-color)',
+                      borderRadius: '10px',
+                      padding: '10px',
+                      textAlign: 'center',
+                      background: 'rgba(37,99,235,0.02)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px',
+                      height: '75px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--primary-light)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.background = 'rgba(37,99,235,0.02)'; }}
+                    onClick={() => document.getElementById('modal-prop-file-upload').click()}
+                  >
+                    <ImageIcon size={20} style={{ color: 'var(--primary)' }} />
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>Upload from Device</span>
+                    <span style={{ fontSize: '8px', color: 'var(--text-light)' }}>PNG, JPG (Max 2MB)</span>
+                  </div>
+                  
+                  {/* Image Preview Block */}
+                  <div style={{
+                    height: '75px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-color)',
+                    background: '#f8fafc',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <img 
+                      src={propertyImage || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=350&auto=format&fit=crop'} 
+                      alt="Preview" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=350&auto=format&fit=crop';
+                      }}
+                    />
+                    {propertyImage && (
+                      <button 
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPropertyImage('');
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '4px',
+                          right: '4px',
+                          background: 'rgba(239, 68, 68, 0.9)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '16px',
+                          height: '16px',
+                          fontSize: '9px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          lineHeight: 1,
+                          fontWeight: '800'
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <input 
-                  type="text" 
-                  id="prop-image"
-                  className="form-input"
-                  placeholder="e.g. https://images.unsplash.com/photo-..." 
-                  value={propertyImage}
-                  onChange={(e) => setPropertyImage(e.target.value)}
+                  type="file" 
+                  id="modal-prop-file-upload" 
+                  accept="image/*" 
+                  style={{ display: 'none' }} 
+                  onChange={handleFileChange} 
                 />
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                  <span style={{ fontSize: '9px', color: 'var(--text-light)', fontWeight: '800' }}>OR LINK</span>
+                  <input 
+                    type="text" 
+                    id="prop-image"
+                    className="form-input"
+                    style={{ height: '32px', fontSize: '11px', flex: 1, padding: '4px 8px' }}
+                    placeholder="Paste image URL (e.g. https://...)" 
+                    value={propertyImage.startsWith('data:image') ? '' : propertyImage}
+                    onChange={(e) => setPropertyImage(e.target.value)}
+                  />
+                </div>
               </div>
 
               {/* Only show purchase cost field to Managers/Admins */}

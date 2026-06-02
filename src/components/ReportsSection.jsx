@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Landmark, TrendingUp, Layers, ShoppingBag, DollarSign, Calendar, Target, Award, ShieldAlert } from 'lucide-react';
+import { Landmark, TrendingUp, Layers, ShoppingBag, DollarSign, Calendar, Target, Award, ShieldAlert, Users, Compass, CheckSquare, Sparkles, Star } from 'lucide-react';
 
-export default function ReportsSection({ properties = [], leads = [], requirements = [], deals = [], searchQuery = '' }) {
+export default function ReportsSection({ properties = [], leads = [], requirements = [], deals = [], visits = [], agents = [], searchQuery = '' }) {
   const [activeReportTab, setActiveReportTab] = useState('available');
 
   const formatCurrency = (val) => {
@@ -108,6 +108,7 @@ export default function ReportsSection({ properties = [], leads = [], requiremen
           { id: 'sold', label: '🤝 Sold Properties' },
           { id: 'requirements', label: '📋 Buyer Requirements' },
           { id: 'deals', label: '🧾 Deal Payment Splits' },
+          { id: 'payments_report', label: '💵 Payment Ledger' },
           { id: 'commissions', label: '💰 Commission splits' },
           { id: 'performance', label: '📈 Performance analytics' }
         ].map((tab) => (
@@ -291,6 +292,114 @@ export default function ReportsSection({ properties = [], leads = [], requiremen
         </div>
       )}
 
+      {/* 3.4.5 Detailed Payments Report */}
+      {activeReportTab === 'payments_report' && (
+        <div className="dashboard-card" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div>
+              <h3 style={{ fontSize: '16px', fontWeight: '800' }}>💵 Detailed Payments & Installments Ledger</h3>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Track which plot has received how much payment, how it came, and what balance remains.</p>
+            </div>
+            <span className="badge info" style={{ fontWeight: '800' }}>
+              MySQL Live Feed
+            </span>
+          </div>
+
+          <div className="table-responsive">
+            <table className="premium-table">
+              <thead>
+                <tr>
+                  <th>Plot / Asset</th>
+                  <th>Buyer Name</th>
+                  <th>Total Cost (₹)</th>
+                  <th>Payment Mode & Ref</th>
+                  <th>Paid So Far (Token + Adv)</th>
+                  <th>Remaining Balance (₹)</th>
+                  <th>Settlement Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredDeals.length > 0 ? (
+                  filteredDeals.map(d => {
+                    const totalVal = parseFloat(d.tokenAmount || 0) + parseFloat(d.advancePayment || 0) + parseFloat(d.finalPayment || 0);
+                    const totalPaidSoFar = parseFloat(d.tokenAmount || 0) + parseFloat(d.advancePayment || 0);
+                    const remainingBalance = Math.max(totalVal - totalPaidSoFar, 0);
+                    const isFullyPaid = remainingBalance <= 0;
+
+                    return (
+                      <tr key={d.id}>
+                        {/* Plot info */}
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <strong style={{ color: 'var(--text-main)' }}>{d.propertyName}</strong>
+                            <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>ID: {d.propertyId}</span>
+                          </div>
+                        </td>
+                        
+                        {/* Buyer */}
+                        <td style={{ fontWeight: '600' }}>{d.buyerName}</td>
+                        
+                        {/* Total Cost */}
+                        <td style={{ fontWeight: '800', color: 'var(--text-main)' }}>
+                          {formatCurrency(totalVal)}
+                        </td>
+
+                        {/* Payment mode & ref */}
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                            <span className={`badge ${
+                              d.paymentMethod === 'Cash' ? 'success' :
+                              d.paymentMethod === 'UPI / NetBanking' ? 'info' :
+                              d.paymentMethod === 'Bank Wire Transfer' ? 'info' :
+                              d.paymentMethod === 'Cheque / DD' ? 'warning' : 'info'
+                            }`} style={{ fontSize: '9px', padding: '2px 6px', fontWeight: '800', width: 'fit-content' }}>
+                              {d.paymentMethod || 'Cash'}
+                            </span>
+                            {d.paymentDetails && (
+                              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                                Ref: {d.paymentDetails}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Paid So Far */}
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <strong style={{ color: '#16a34a' }}>{formatCurrency(totalPaidSoFar)}</strong>
+                            <span style={{ fontSize: '9.5px', color: 'var(--text-muted)' }}>
+                              Tok: {formatCurrency(d.tokenAmount)} • Adv: {formatCurrency(d.advancePayment)}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Remaining Balance */}
+                        <td style={{ fontWeight: '850', color: isFullyPaid ? '#16a34a' : 'var(--primary-color)' }}>
+                          {formatCurrency(remainingBalance)}
+                        </td>
+
+                        {/* Status */}
+                        <td>
+                          <span className={`badge ${isFullyPaid ? 'success' : 'warning'}`} style={{ fontWeight: '800', textTransform: 'uppercase', fontSize: '10px' }}>
+                            {isFullyPaid ? 'Fully Paid ✓' : `${formatCurrency(remainingBalance)} Pending`}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="table-empty-state">
+                      No payments recorded yet. Close some sale deals first!
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* 3.5 Commission splits ledger */}
       {activeReportTab === 'commissions' && (
         <div className="dashboard-card" style={{ padding: '24px' }}>
@@ -333,38 +442,261 @@ export default function ReportsSection({ properties = [], leads = [], requiremen
         </div>
       )}
 
-      {/* 3.6 Performance Report */}
+      {/* 3.6 Dynamic Performance Analytics Report Dashboard */}
       {activeReportTab === 'performance' && (
-        <div className="dashboard-card" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '18px' }}>Monthly Agency Performance Analysis</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '24px' }}>
-            <div style={{ padding: '16px', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Deal Conversion Ratio</div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)', marginTop: '6px' }}>
-                {requirements.length > 0 ? Math.round((deals.length / requirements.length) * 100) : 0}%
+        <div style={{ animation: 'fade-in 0.4s ease-out', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Performance Summary Cards Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '16px'
+          }}>
+            <div style={{ background: '#fff', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-light)', fontWeight: '800', textTransform: 'uppercase' }}>CRM Conversion Ratio</span>
+              <div style={{ fontSize: '26px', fontWeight: '900', color: 'var(--primary)', marginTop: '8px' }}>
+                {leads.length > 0 ? Math.round((deals.length / leads.length) * 100) : 0}%
               </div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Closed vs requirements inquiry</span>
+              <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>Leads converted to closed sales</span>
             </div>
-            <div style={{ padding: '16px', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Avg Commission Per Transaction</div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)', marginTop: '6px' }}>
-                {deals.length > 0 ? formatCurrency(totalCommissionEarned / deals.length) : '₹0'}
+
+            <div style={{ background: '#fff', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-light)', fontWeight: '800', textTransform: 'uppercase' }}>Internal Net Profit ROI</span>
+              <div style={{ fontSize: '26px', fontWeight: '900', color: '#16a34a', marginTop: '8px' }}>
+                {formatCurrency(properties.filter(p => p.status === 'Sold').reduce((sum, p) => sum + parseFloat(p.price - (p.purchasePrice || p.price * 0.8)), 0))}
               </div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Brokerage spread averages</span>
+              <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>Sold Price - Acquisition Cost</span>
             </div>
-            <div style={{ padding: '16px', background: 'var(--bg-light)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Inventory Sales Turnover Rate</div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-main)', marginTop: '6px' }}>
-                {properties.length > 0 ? Math.round((soldProperties.length / properties.length) * 100) : 0}%
+
+            <div style={{ background: '#fff', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-light)', fontWeight: '800', textTransform: 'uppercase' }}>Avg Deal Value</span>
+              <div style={{ fontSize: '26px', fontWeight: '900', color: 'var(--text-main)', marginTop: '8px' }}>
+                {deals.length > 0 ? formatCurrency(deals.reduce((sum, d) => sum + parseFloat(d.tokenAmount + d.advancePayment + d.finalPayment), 0) / deals.length) : '₹0'}
               </div>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Closed vs total assets listings</span>
+              <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>Average contract sizing</span>
+            </div>
+
+            <div style={{ background: '#fff', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-light)', fontWeight: '800', textTransform: 'uppercase' }}>Visits Conversion</span>
+              <div style={{ fontSize: '26px', fontWeight: '900', color: '#7e22ce', marginTop: '8px' }}>
+                {visits.length > 0 ? Math.round((deals.length / visits.length) * 100) : 0}%
+              </div>
+              <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>Sales deals closed vs visits</span>
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '12.5px' }}>
-            <Sparkles size={16} style={{ color: 'var(--primary-color)' }} />
-            <span>Monthly Performance matches standard PropDeal KPI indicators. Good job team!</span>
+          {/* CRM Conversion Funnel */}
+          <div className="dashboard-card" style={{ padding: '24px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '850', color: 'var(--text-main)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>🚀 Live CRM Sales Funnel Pipeline</span>
+            </h3>
+            
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              flexWrap: 'wrap',
+              background: 'var(--bg-main)',
+              padding: '20px',
+              borderRadius: '16px',
+              border: '1px solid var(--border-color)'
+            }}>
+              {[
+                { label: 'Leads Registered', count: leads.length, color: 'var(--primary)', pct: 100 },
+                { label: 'Requirements Submitted', count: requirements.length, color: '#0d9488', pct: leads.length > 0 ? Math.round((requirements.length / leads.length) * 100) : 0 },
+                { label: 'Site Visits Scheduled', count: visits.length, color: '#7e22ce', pct: requirements.length > 0 ? Math.round((visits.length / requirements.length) * 100) : 0 },
+                { label: 'Closed Sales', count: deals.length, color: '#16a34a', pct: visits.length > 0 ? Math.round((deals.length / visits.length) * 100) : 0 }
+              ].map((step, idx) => (
+                <React.Fragment key={idx}>
+                  <div style={{
+                    flex: 1,
+                    minWidth: '130px',
+                    background: '#ffffff',
+                    border: '1px solid var(--border-color)',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: 'var(--shadow-sm)',
+                    position: 'relative'
+                  }}>
+                    <span style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', textAlign: 'center' }}>{step.label}</span>
+                    <strong style={{ fontSize: '20px', color: step.color, marginTop: '4px' }}>{step.count}</strong>
+                    <span style={{
+                      fontSize: '9.5px',
+                      background: 'var(--bg-main)',
+                      color: 'var(--text-muted)',
+                      padding: '2px 8px',
+                      borderRadius: '30px',
+                      fontWeight: '700',
+                      marginTop: '4px'
+                    }}>
+                      {step.pct}% Yield
+                    </span>
+                  </div>
+                  {idx < 3 && (
+                    <div style={{
+                      fontSize: '20px',
+                      color: 'var(--text-light)',
+                      fontWeight: '800',
+                      userSelect: 'none',
+                      padding: '0 8px'
+                    }}>
+                      →
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
+
+          {/* Comparative Agent Leaderboard Scoreboard */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px', alignItems: 'start' }}>
+            
+            {/* Agent Scoreboard Card */}
+            <div className="dashboard-card" style={{ padding: '24px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: '850', color: 'var(--text-main)', marginBottom: '16px' }}>👥 Active Agents Conversion Scoreboard</h3>
+              
+              <div className="table-responsive">
+                <table className="premium-table">
+                  <thead>
+                    <tr>
+                      <th>Agent Name</th>
+                      <th>Assigned Leads</th>
+                      <th>Closed Sales</th>
+                      <th>Brokerage Yield</th>
+                      <th>Ranking Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {agents.length > 0 ? (
+                      agents.map(agent => {
+                        // Dynamic matching calculation connecting MySQL schema sets together
+                        const agentLeads = leads.filter(l => l.assignedTo === agent.fullName);
+                        const agentLeadNames = agentLeads.map(l => l.name);
+                        
+                        // Count deals matching lead names assigned to this agent
+                        const agentDeals = deals.filter(d => agentLeadNames.includes(d.buyerName));
+                        const closedDeals = agentDeals.length;
+                        const commissionEarned = agentDeals.reduce((sum, d) => sum + parseFloat(d.commissionEarned || 0), 0);
+
+                        const stars = closedDeals === 0 ? 2 : closedDeals === 1 ? 3 : closedDeals === 2 ? 4 : 5;
+
+                        return (
+                          <tr key={agent.userId}>
+                            {/* Profile details */}
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <img 
+                                  src={agent.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'} 
+                                  alt={agent.fullName}
+                                  style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                                />
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <strong style={{ color: 'var(--text-main)', fontSize: '12.5px' }}>{agent.fullName}</strong>
+                                  <span style={{ fontSize: '10px', color: 'var(--text-light)', textTransform: 'uppercase' }}>{agent.city} • {agent.role}</span>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Assigned leads */}
+                            <td style={{ fontWeight: '700', textAlign: 'center' }}>{agentLeads.length}</td>
+
+                            {/* Closed deals */}
+                            <td style={{ fontWeight: '800', color: closedDeals > 0 ? '#16a34a' : 'var(--text-muted)', textAlign: 'center' }}>
+                              {closedDeals} closed
+                            </td>
+
+                            {/* Yield */}
+                            <td style={{ fontWeight: '800', color: 'var(--primary)' }}>
+                              {formatCurrency(commissionEarned)}
+                            </td>
+
+                            {/* Rating Rank stars */}
+                            <td>
+                              <div style={{ display: 'flex', gap: '2px', color: '#fbbf24' }}>
+                                {Array.from({ length: 5 }, (_, i) => (
+                                  <Star key={i} size={11} fill={i < stars ? '#fbbf24' : 'none'} stroke={i < stars ? '#fbbf24' : '#cbd5e1'} />
+                                ))}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr><td colSpan="5" className="table-empty-state">No agents registered. Set up roles in User settings first!</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Visual Comparative category inventory bar chart */}
+            <div className="dashboard-card" style={{ padding: '24px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: '850', color: 'var(--text-main)', marginBottom: '16px' }}>📊 Comparative Category Sales Spread</h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[
+                  { label: 'House / Villa', type: 'House', color: 'linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)' },
+                  { label: 'Flat / Apartment', type: 'Flat', color: 'linear-gradient(90deg, #0d9488 0%, #14b8a6 100%)' },
+                  { label: 'Plot / Land', type: 'Plot', color: 'linear-gradient(90deg, #d97706 0%, #f59e0b 100%)' },
+                  { label: 'Commercial Shop', type: 'Shop', color: 'linear-gradient(90deg, #7e22ce 0%, #a855f7 100%)' },
+                  { label: 'Office Space', type: 'Office', color: 'linear-gradient(90deg, #db2777 0%, #f472b6 100%)' }
+                ].map((cat, idx) => {
+                  const totalCount = properties.filter(p => p.type === cat.type).length;
+                  const soldCount = properties.filter(p => p.type === cat.type && p.status === 'Sold').length;
+                  
+                  // Calculate percentage relative to maximum sold or count
+                  const soldPct = totalCount > 0 ? (soldCount / totalCount) * 100 : 0;
+
+                  return (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px' }}>
+                        <span style={{ fontWeight: '700', color: 'var(--text-muted)' }}>{cat.label}</span>
+                        <span style={{ fontWeight: '800', color: 'var(--text-main)' }}>
+                          {soldCount} Sold / {totalCount} Listed
+                        </span>
+                      </div>
+                      <div style={{
+                        height: '8px',
+                        background: 'var(--bg-main)',
+                        borderRadius: '4px',
+                        overflow: 'hidden',
+                        position: 'relative'
+                      }}>
+                        <div style={{
+                          width: `${soldPct > 0 ? soldPct : 5}%`, // Min visual sliver if 0
+                          background: cat.color,
+                          height: '100%',
+                          borderRadius: '4px',
+                          transition: 'width 0.4s ease-out'
+                        }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Footer matches standard */}
+          <div style={{
+            borderTop: '1px solid var(--border-color)',
+            paddingTop: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            color: 'var(--text-muted)',
+            fontSize: '12.5px'
+          }}>
+            <Sparkles size={16} style={{ color: 'var(--primary-color)' }} />
+            <span>Monthly performance index matches standard PropDeal Universal ERP metrics seamlessly.</span>
+          </div>
+
         </div>
       )}
 

@@ -7,7 +7,7 @@ export default function Header({
   setSearchQuery, 
   sidebarOpen, 
   setSidebarOpen,
-  notificationCount = 3,
+  leads = [],
   userName = 'Admin',
   userRole = 'Agent',
   userId = '',
@@ -108,16 +108,31 @@ export default function Header({
     }
   };
 
+  const newLeads = Array.isArray(leads) ? leads.filter(l => l.status === 'New Lead') : [];
+  const notificationCount = newLeads.length;
+
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
   const handleProfileClick = (e) => {
     e.stopPropagation();
     setProfileMenuOpen(!profileMenuOpen);
+    setNotificationsOpen(false);
   };
 
-  // Close profile dropdown when clicking anywhere else
+  const handleBellClick = (e) => {
+    e.stopPropagation();
+    setNotificationsOpen(!notificationsOpen);
+    setProfileMenuOpen(false);
+  };
+
+  // Close dropdowns when clicking anywhere else
   React.useEffect(() => {
-    const closeDropdown = () => setProfileMenuOpen(false);
-    window.addEventListener('click', closeDropdown);
-    return () => window.removeEventListener('click', closeDropdown);
+    const closeDropdowns = () => {
+      setProfileMenuOpen(false);
+      setNotificationsOpen(false);
+    };
+    window.addEventListener('click', closeDropdowns);
+    return () => window.removeEventListener('click', closeDropdowns);
   }, []);
 
   return (
@@ -152,16 +167,143 @@ export default function Header({
         </div>
 
         {/* Notifications Icon Button */}
-        <button 
-          type="button" 
-          className="header-icon-btn"
-          onClick={() => alert(`You have ${notificationCount} new alerts: \n- P002 (Sky Heights) Sold! \n- New Lead Amit Verma registered \n- Agreement generated for P001.`)}
-        >
-          <Bell size={20} />
-          {notificationCount > 0 && (
-            <span className="header-notification-badge">{notificationCount}</span>
+        <div style={{ position: 'relative' }}>
+          <button 
+            type="button" 
+            className="header-icon-btn"
+            onClick={handleBellClick}
+          >
+            <Bell size={20} />
+            {notificationCount > 0 && (
+              <span className="header-notification-badge">{notificationCount}</span>
+            )}
+          </button>
+
+          {/* Floating Dropdown Context Menu for Dynamic CRM Notifications */}
+          {notificationsOpen && (
+            <div 
+              className="auth-profile-dropdown"
+              style={{
+                position: 'absolute',
+                top: '52px',
+                right: '0',
+                background: '#ffffff',
+                border: '1px solid var(--border-color)',
+                borderRadius: '16px',
+                boxShadow: 'var(--shadow-lg)',
+                zIndex: 9999,
+                width: '320px',
+                overflow: 'hidden',
+                animation: 'slide-up 0.2s ease-out'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Dropdown Header */}
+              <div 
+                style={{ 
+                  padding: '16px', 
+                  fontSize: '13px', 
+                  borderBottom: '1px solid var(--border-color)',
+                  color: 'var(--text-main)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontWeight: '800'
+                }}
+              >
+                <span>Dynamic CRM Feeds</span>
+                <span className="badge info" style={{ fontSize: '9.5px', padding: '2px 8px', fontWeight: '800' }}>
+                  {notificationCount} New Leads
+                </span>
+              </div>
+
+              {/* Dropdown Body */}
+              <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                {newLeads.length > 0 ? (
+                  newLeads.map((l) => (
+                    <div 
+                      key={l.id} 
+                      style={{ 
+                        padding: '12px 16px', 
+                        borderBottom: '1px solid var(--border-color)',
+                        display: 'flex',
+                        gap: '12px',
+                        alignItems: 'flex-start',
+                        transition: 'background-color 0.2s',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-light)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      {/* Lead Avatar */}
+                      <img 
+                        src={l.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop'} 
+                        alt={l.name} 
+                        style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)', marginTop: '2px' }}
+                      />
+                      {/* Lead details */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, overflow: 'hidden' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12.5px', fontWeight: '750', color: 'var(--text-main)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                            {l.name}
+                          </span>
+                          <span style={{ fontSize: '8px', color: 'var(--text-light)', fontWeight: '600' }}>ID: {l.id}</span>
+                        </div>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.3' }}>
+                          Requirement: <strong>{l.requirement}</strong>
+                        </span>
+                        <span style={{ fontSize: '9px', color: 'var(--primary)', fontWeight: '700', marginTop: '2px' }}>
+                          📞 {l.mobile}
+                        </span>
+                      </div>
+                      {/* Glowing blue dot */}
+                      <span style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: 'var(--primary)',
+                        boxShadow: '0 0 6px var(--primary)',
+                        flexShrink: 0,
+                        marginTop: '14px'
+                      }}></span>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{
+                    padding: '30px 20px',
+                    textAlign: 'center',
+                    color: 'var(--text-light)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span style={{ fontSize: '24px' }}>🎉</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontSize: '12.5px', fontWeight: '750', color: 'var(--text-main)' }}>Pipeline is fully active!</span>
+                      <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>No pending new leads in MySQL.</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Dropdown Footer */}
+              <div 
+                style={{ 
+                  padding: '10px', 
+                  background: 'var(--bg-main)', 
+                  textAlign: 'center', 
+                  borderTop: '1px solid var(--border-color)',
+                  fontSize: '10px',
+                  fontWeight: '700',
+                  color: 'var(--text-muted)'
+                }}
+              >
+                PropDeal ERP Live CRM Feed
+              </div>
+            </div>
           )}
-        </button>
+        </div>
 
         {/* User profile picture & status block */}
         <div 

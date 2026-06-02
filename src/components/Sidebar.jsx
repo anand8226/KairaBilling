@@ -21,7 +21,7 @@ const getFilteredMenuItems = (role) => {
   // Return the complete premium set of menu items inspired by the reference Universal ERP image
   const baseItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'sell_property', label: 'Billing', icon: Receipt },
+    { id: 'sell_property_deal', label: 'Billing', icon: Receipt },
     { id: 'deals', label: 'Sales', icon: DollarSign },
     { id: 'properties', label: 'Inventory', icon: Home },
     { id: 'customers', label: 'Customers', icon: UserCheck },
