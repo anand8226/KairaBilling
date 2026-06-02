@@ -1,4 +1,4 @@
-// Node Express Server Entrypoint for PropDeal Backend
+// Node Express Server Entrypoint for Kaira Deal Backend
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
@@ -131,51 +131,51 @@ async function initDB() {
     const defaultUsers = [
       {
         fullName: 'Anand Kumar',
-        emailAddress: 'anand@propdeal.com',
+        emailAddress: 'anand@kairadeal.com',
         countryCode: '+91',
         phoneNumber: '9999999999',
         passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // password: 123456
         role: 'Super Admin',
-        companyName: 'PropDeal Corp',
+        companyName: 'Kaira Deal Corp',
         city: 'Mumbai',
         state: 'Maharashtra',
-        profileImage: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop'
+        profileImage: '/kaira_logo.svg'
       },
       {
         fullName: 'Karan Singh',
-        emailAddress: 'karan@propdeal.com',
+        emailAddress: 'karan@kairadeal.com',
         countryCode: '+91',
         phoneNumber: '8888888888',
         passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // password: 123456
         role: 'Manager',
-        companyName: 'PropDeal Corp',
+        companyName: 'Kaira Deal Corp',
         city: 'Mumbai',
         state: 'Maharashtra',
-        profileImage: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=150&auto=format&fit=crop'
+        profileImage: '/kaira_logo.svg'
       },
       {
         fullName: 'Rajesh Kumar',
-        emailAddress: 'rajesh@propdeal.com',
+        emailAddress: 'rajesh@kairadeal.com',
         countryCode: '+91',
         phoneNumber: '7777777777',
         passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // password: 123456
         role: 'Agent',
-        companyName: 'PropDeal Corp',
+        companyName: 'Kaira Deal Corp',
         city: 'Mumbai',
         state: 'Maharashtra',
-        profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop'
+        profileImage: '/kaira_logo.svg'
       },
       {
         fullName: 'Sunita Rao',
-        emailAddress: 'sunita@propdeal.com',
+        emailAddress: 'sunita@kairadeal.com',
         countryCode: '+91',
         phoneNumber: '7777777778',
         passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', // password: 123456
         role: 'Agent',
-        companyName: 'PropDeal Corp',
+        companyName: 'Kaira Deal Corp',
         city: 'Pune',
         state: 'Maharashtra',
-        profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop'
+        profileImage: '/kaira_logo.svg'
       }
     ];
 

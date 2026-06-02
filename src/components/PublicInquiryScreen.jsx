@@ -64,7 +64,7 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
 
         // If the user selected WhatsApp, redirect them to WhatsApp Web/App
         if (type === 'whatsapp') {
-          const waMessage = `Hi PropDeal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
+          const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
           const encodedMessage = encodeURIComponent(waMessage);
           const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
           
@@ -80,7 +80,7 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
       
       // Fallback: If DB is offline, we can still redirect them to WhatsApp so the lead is not lost
       if (type === 'whatsapp') {
-        const waMessage = `Hi PropDeal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
+        const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
         const encodedMessage = encodeURIComponent(waMessage);
         const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
         window.open(waUrl, '_blank');
@@ -105,10 +105,18 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
           
           {/* Header Branding */}
           <div className="auth-brand-row">
-            <div className="auth-logo-box">
-              <Home size={22} strokeWidth={2.5} />
-            </div>
-            <span className="auth-brand-name">PropDeal Portal</span>
+            <img 
+              src="/kaira_logo.svg" 
+              alt="Kaira Deal Logo" 
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                objectFit: 'cover',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+              }} 
+            />
+            <span className="auth-brand-name">Kaira Deal Portal</span>
           </div>
 
           {!success ? (
@@ -256,7 +264,7 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
                   className="auth-submit-btn"
                   style={{ background: 'var(--success-icon)', display: 'flex', alignItems: 'center', justify: 'center', gap: '8px' }}
                   onClick={() => {
-                    const waMessage = `Hi PropDeal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
+                    const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
                     const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodeURIComponent(waMessage)}`;
                     window.open(waUrl, '_blank');
                   }}
@@ -289,7 +297,7 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
 
           {/* Footer branding */}
           <div className="auth-footer-row" style={{ marginTop: '30px' }}>
-            <span>PropDeal CRM 2026</span>
+            <span>Kaira Deal CRM 2026</span>
             <span className="dot">•</span>
             <span>Fast Lead Engine</span>
           </div>

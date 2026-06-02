@@ -11,7 +11,7 @@ export default function Header({
   userName = 'Admin',
   userRole = 'Agent',
   userId = '',
-  userAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop',
+  userAvatar = '/kaira_logo.svg',
   onUpdateAvatar,
   onLogout 
 }) {
@@ -39,7 +39,7 @@ export default function Header({
   };
 
   const PRESET_AVATARS = [
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop",
+    "/kaira_logo.svg",
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
@@ -299,7 +299,7 @@ export default function Header({
                   color: 'var(--text-muted)'
                 }}
               >
-                PropDeal ERP Live CRM Feed
+                Kaira Deal ERP Live CRM Feed
               </div>
             </div>
           )}

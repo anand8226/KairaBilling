@@ -52,8 +52,8 @@ const defaultDeals = [
 ];
 
 const defaultAgents = [
-  { userId: 1, fullName: 'Rajesh Kumar', emailAddress: 'rajesh@propdeal.com', phoneNumber: '7777777777', role: 'Agent', city: 'Mumbai' },
-  { userId: 2, fullName: 'Sunita Rao', emailAddress: 'sunita@propdeal.com', phoneNumber: '7777777778', role: 'Agent', city: 'Pune' }
+  { userId: 1, fullName: 'Rajesh Kumar', emailAddress: 'rajesh@kairadeal.com', phoneNumber: '7777777777', role: 'Agent', city: 'Mumbai' },
+  { userId: 2, fullName: 'Sunita Rao', emailAddress: 'sunita@kairadeal.com', phoneNumber: '7777777778', role: 'Agent', city: 'Pune' }
 ];
 
 export default function App() {
@@ -78,7 +78,7 @@ export default function App() {
   });
 
   const [userAvatar, setUserAvatar] = useState(() => {
-    return localStorage.getItem('propdeal_user_avatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop';
+    return localStorage.getItem('propdeal_user_avatar') || '/kaira_logo.svg';
   });
   
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -205,7 +205,7 @@ export default function App() {
     localStorage.setItem('propdeal_user_id', userObj.id);
     localStorage.setItem('propdeal_user_name', userObj.fullName);
     localStorage.setItem('propdeal_user_role', userObj.role);
-    localStorage.setItem('propdeal_user_avatar', userObj.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
+    localStorage.setItem('propdeal_user_avatar', userObj.profileImage || '/kaira_logo.svg');
     
     if (userObj.phoneNumber) {
       const digits = userObj.phoneNumber.replace(/\D/g, '');
@@ -1046,7 +1046,7 @@ export default function App() {
 
         {/* Footer copyrights */}
         <footer className="footer-credits">
-          © {new Date().getFullYear()} PropDeal. All rights reserved.
+          © {new Date().getFullYear()} Kaira Deal. All rights reserved.
         </footer>
       </main>
 
