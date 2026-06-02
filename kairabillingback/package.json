@@ -1,7 +1,7 @@
 {
   "name": "kairabillingback",
   "version": "1.0.0",
-  "description": "Premium backend API for PropDeal real estate dashboard",
+  "description": "Premium backend API for Kaira Deal real estate dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

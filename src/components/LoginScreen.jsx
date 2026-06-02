@@ -77,10 +77,18 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
 
           {/* Logo Section */}
           <div className="auth-brand-row">
-            <div className="auth-logo-box">
-              <Home size={22} strokeWidth={2.5} />
-            </div>
-            <span className="auth-brand-name">PropDeal</span>
+            <img 
+              src="/kaira_logo.svg" 
+              alt="Kaira Deal Logo" 
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                objectFit: 'cover',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+              }} 
+            />
+            <span className="auth-brand-name">Kaira Deal</span>
           </div>
 
           {/* Form Header */}
@@ -220,7 +228,7 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
 
           {/* Footer copyright list */}
           <div className="auth-footer-row">
-            <span>PropDeal 2026</span>
+            <span>Kaira Deal 2026</span>
             <span className="dot">•</span>
             <a href="#privacy" onClick={(e) => e.preventDefault()}>Privacy</a>
             <span className="dot">•</span>
@@ -274,6 +282,16 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
                     if (response.ok) {
                       setDemoOtp(data.devOtp || '');
                       setForgotStep(2);
+                      
+                      // Auto-dispatch OTP directly to user's mobile number via WhatsApp!
+                      if (data.devOtp) {
+                        const otpMessage = `*Kaira Deal Security Center*\n\nYour 6-digit OTP verification code to reset your account password is: *${data.devOtp}*\n\nDo not share this code with anyone. Valid for 5 minutes.`;
+                        const encodedMsg = encodeURIComponent(otpMessage);
+                        const waUrl = `https://wa.me/91${forgotPhone}?text=${encodedMsg}`;
+                        
+                        // Open WhatsApp Web/App to send the OTP to their own number!
+                        window.open(waUrl, '_blank');
+                      }
                     } else {
                       alert(`❌ Error: ${data.error || 'Request failed'}`);
                     }

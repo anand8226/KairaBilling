@@ -47,11 +47,20 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen, us
     <aside className={`sidebar ${isOpen ? 'mobile-open' : ''}`} style={{ zIndex: 100 }}>
       {/* Brand Header matching reference visual layout */}
       <div className="sidebar-brand" style={{ paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px' }}>
-        <div className="sidebar-logo-container" style={{ background: 'var(--primary)' }}>
-          <Layers size={22} strokeWidth={2.5} />
-        </div>
+        <img 
+          src="/kaira_logo.svg" 
+          alt="Kaira Deal Logo" 
+          style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            objectFit: 'cover',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+            display: 'block'
+          }} 
+        />
         <div className="sidebar-brand-text">
-          <h1 style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '-0.5px' }}>PropDeal</h1>
+          <h1 style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '-0.5px' }}>Kaira Deal</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
             <span style={{ fontSize: '9px', fontWeight: '800', color: 'var(--primary)', letterSpacing: '0.5px' }}>ERP SUITE</span>
             <span className={`badge ${userRole === 'Super Admin' ? 'danger' : userRole === 'Manager' ? 'warning' : 'info'}`} style={{ fontSize: '7.5px', padding: '1px 5px', fontWeight: '800', textTransform: 'uppercase', borderRadius: '4px' }}>
@@ -88,7 +97,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen, us
                   return;
                 }
                 if (item.id === 'backup_section') {
-                  alert("☁️ PropDeal Database Backup is active. Auto-synced to cloud server.");
+                  alert("☁️ Kaira Deal Database Backup is active. Auto-synced to cloud server.");
                   return;
                 }
                 setActiveTab(item.id);
@@ -124,7 +133,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, setIsOpen, us
             if (onLogout) {
               onLogout();
             } else {
-              alert("Logging out from PropDeal ERP Console.");
+              alert("Logging out from Kaira Deal ERP Console.");
             }
           }}
         >

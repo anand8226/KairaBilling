@@ -694,7 +694,7 @@ export default function ReportsSection({ properties = [], leads = [], requiremen
             fontSize: '12.5px'
           }}>
             <Sparkles size={16} style={{ color: 'var(--primary-color)' }} />
-            <span>Monthly performance index matches standard PropDeal Universal ERP metrics seamlessly.</span>
+            <span>Monthly performance index matches standard Kaira Deal Universal ERP metrics seamlessly.</span>
           </div>
 
         </div>

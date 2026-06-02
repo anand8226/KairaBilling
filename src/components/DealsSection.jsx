@@ -18,7 +18,7 @@ export default function DealsSection({ deals = [], searchQuery = '' }) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PropDeal Agreement Certificate - ${deal.id}</title>
+  <title>Kaira Deal Agreement Certificate - ${deal.id}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
     
@@ -408,13 +408,13 @@ export default function DealsSection({ deals = [], searchQuery = '' }) {
 </head>
 <body>
   <div class="deed-container">
-    <div class="watermark">PropDeal Certified</div>
+    <div class="watermark">Kaira Deal Certified</div>
     
     <div class="header">
       <div class="brand-logo">
-        <div class="logo-box">P</div>
+        <div class="logo-box">K</div>
         <div>
-          <h1>PropDeal</h1>
+          <h1>Kaira Deal</h1>
           <span>ERP SUITE CONSOLE</span>
         </div>
       </div>
@@ -493,7 +493,7 @@ export default function DealsSection({ deals = [], searchQuery = '' }) {
       <ol>
         <li><strong>Booking Commitment:</strong> The buyer has successfully paid a total deposit of token and advance amounts. The listing status is locked as "Sold" from the public marketplace registry.</li>
         <li><strong>Remaining Balance:</strong> The remaining final balance of ${formatCurrency(deal.finalPayment || 0)} must be cleared in full prior to the physical signing of the Registry Deed and key transfer.</li>
-        <li><strong>Brokerage Agency Fee:</strong> A mutual agency brokerage fee of ${formatCurrency(deal.commissionEarned || 0)} (calculated at ${deal.commissionPercent || 2.0}%) is verified and payable in full to PropDeal.</li>
+        <li><strong>Brokerage Agency Fee:</strong> A mutual agency brokerage fee of ${formatCurrency(deal.commissionEarned || 0)} (calculated at ${deal.commissionPercent || 2.0}%) is verified and payable in full to Kaira Deal.</li>
       </ol>
     </div>
     
@@ -503,7 +503,7 @@ export default function DealsSection({ deals = [], searchQuery = '' }) {
         <div class="sig-title">Buyer Signature</div>
       </div>
       <div class="sig-col">
-        <div class="seal-box">PropDeal<br>Verified<br>Secure</div>
+        <div class="seal-box">Kaira Deal<br>Verified<br>Secure</div>
       </div>
       <div class="sig-col">
         <div class="sig-line"></div>

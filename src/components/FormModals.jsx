@@ -836,7 +836,7 @@ export function InvoiceModal({ isOpen, onClose, invoiceData }) {
     printWindow.document.write(`
       <html>
         <head>
-          <title>PropDeal Invoice - ${invoiceData.invoiceId}</title>
+          <title>Kaira Deal Invoice - ${invoiceData.invoiceId}</title>
           <style>
             body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
             .invoice-box { max-width: 800px; margin: auto; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; }
@@ -878,7 +878,7 @@ export function InvoiceModal({ isOpen, onClose, invoiceData }) {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
               <div>
-                <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>PropDeal</h2>
+                <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.5px' }}>Kaira Deal</h2>
                 <p style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Authorized Billing Console</p>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -908,7 +908,7 @@ export function InvoiceModal({ isOpen, onClose, invoiceData }) {
               <div>
                 <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase' }}>Billed To (Buyer)</div>
                 <div style={{ fontWeight: '700', fontSize: '14px', marginTop: '4px', color: '#0f172a' }}>{invoiceData.buyerName}</div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>PropDeal Registered Customer</div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Kaira Deal Registered Customer</div>
               </div>
             </div>
 
@@ -1043,7 +1043,7 @@ export function InvoiceModal({ isOpen, onClose, invoiceData }) {
             </table>
 
             <div style={{ marginTop: '24px', fontSize: '11px', color: '#64748b', textAlign: 'center', borderTop: '1px dashed #e2e8f0', paddingTop: '16px' }}>
-              Thank you for trusting <strong>PropDeal</strong>. This invoice is digitally generated and legally binding.
+              Thank you for trusting <strong>Kaira Deal</strong>. This invoice is digitally generated and legally binding.
             </div>
 
           </div>

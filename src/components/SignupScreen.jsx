@@ -80,10 +80,18 @@ export default function SignupScreen({ onSwitchToLogin, onBackToWebsite }) {
 
           {/* Logo Section */}
           <div className="auth-brand-row">
-            <div className="auth-logo-box">
-              <Home size={22} strokeWidth={2.5} />
-            </div>
-            <span className="auth-brand-name">PropDeal</span>
+            <img 
+              src="/kaira_logo.svg" 
+              alt="Kaira Deal Logo" 
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                objectFit: 'cover',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+              }} 
+            />
+            <span className="auth-brand-name">Kaira Deal</span>
           </div>
 
           {/* Form Header */}
@@ -261,7 +269,7 @@ export default function SignupScreen({ onSwitchToLogin, onBackToWebsite }) {
 
           {/* Footer copyright list */}
           <div className="auth-footer-row">
-            <span>PropDeal 2026</span>
+            <span>Kaira Deal 2026</span>
             <span className="dot">•</span>
             <a href="#privacy" onClick={(e) => e.preventDefault()}>Privacy</a>
             <span className="dot">•</span>

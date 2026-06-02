@@ -136,7 +136,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
         setSuccess(true);
 
         if (type === 'whatsapp') {
-          const waMessage = `Hi PropDeal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
+          const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
           const encodedMessage = encodeURIComponent(waMessage);
           const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
           window.open(waUrl, '_blank');
@@ -148,7 +148,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
       console.error('Lead sync failed:', error);
       alert("⚠️ Lead submit nahi ho paayi, par aap WhatsApp par direct message bhej kar contact kar sakte hain!");
       if (type === 'whatsapp') {
-        const waMessage = `Hi PropDeal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
+        const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
         const encodedMessage = encodeURIComponent(waMessage);
         const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
         window.open(waUrl, '_blank');
@@ -188,21 +188,19 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
         
         {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => handleNavClick('home')}>
-          <div style={{
-            background: 'var(--primary)',
-            color: '#fff',
-            width: '36px',
-            height: '36px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 10px rgba(30,111,253,0.3)'
-          }}>
-            <Layers size={18} strokeWidth={2.5} />
-          </div>
+          <img 
+            src="/kaira_logo.svg" 
+            alt="Kaira Deal Logo" 
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              objectFit: 'cover',
+              boxShadow: '0 4px 10px rgba(30,111,253,0.3)'
+            }} 
+          />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>PropDeal</span>
+            <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>Kaira Deal</span>
             <span style={{ fontSize: '9px', fontWeight: '700', color: 'var(--primary)', letterSpacing: '0.5px' }}>ERP SUITE</span>
           </div>
         </div>
@@ -335,7 +333,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                   <button 
                     type="button" 
                     className="btn-saas-primary"
-                    onClick={onLoginTrigger}
+                    onClick={() => handleNavClick('contact')}
                   >
                     Start Free Trial
                     <ChevronRight size={16} />
@@ -379,9 +377,9 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                     {/* Simulated miniature dashboard inside screen */}
                     <div className="mini-dash-layout">
                       <div className="mini-dash-header">
-                        <div className="mini-dash-brand">
-                          <div className="mini-dash-dot" />
-                          PropDeal Suite
+                        <div className="mini-dash-brand" style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <img src="/kaira_logo.svg" alt="logo" style={{ width: '8px', height: '8px', borderRadius: '2px' }} />
+                          Kaira Deal Suite
                         </div>
                         <div className="mini-dash-profile" />
                       </div>
@@ -425,9 +423,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                   <div className="phone-speaker" />
                   <div className="phone-screen">
                     <div className="mini-mobile-layout">
-                      <div className="mini-mob-header">
-                        <span className="mini-mob-logo">PropDeal</span>
-                        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#10b981' }} />
+                      <div className="mini-mob-header" style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <img src="/kaira_logo.svg" alt="logo" style={{ width: '7px', height: '7px', borderRadius: '1.5px' }} />
+                        <span className="mini-mob-logo">Kaira Deal</span>
+                        <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#10b981', marginLeft: 'auto' }} />
                       </div>
 
                       <div className="mini-mob-stats-row">
@@ -748,7 +747,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                       <div className="saas-preview-win-dot green" />
                     </div>
                     <div className="saas-preview-win-title">
-                      PropDeal ERP Enterprise - {activePreview.toUpperCase()} PANEL v1.4 (MySQL-Live)
+                      Kaira Deal ERP Enterprise - {activePreview.toUpperCase()} PANEL v1.4 (MySQL-Live)
                     </div>
                     <div style={{ width: '32px' }} />
                   </div>
@@ -1164,10 +1163,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 textTransform: 'uppercase'
               }}>Who We Are</span>
               <h1 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--text-main)', marginTop: '10px' }}>
-                KairaBilling & PropDeal
+                KairaBilling & Kaira Deal
               </h1>
               <p style={{ fontSize: '15px', color: 'var(--text-muted)', marginTop: '8px' }}>
-                PropDeal is a leading property advisory and asset management ecosystem trusted by thousands of builders and agents.
+                Kaira Deal is a leading property advisory and asset management ecosystem trusted by thousands of builders and agents.
               </p>
             </div>
 
@@ -1380,7 +1379,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                       className="auth-submit-btn"
                       style={{ background: 'var(--success-icon)', width: '100%', margin: 0, display: 'flex', alignItems: 'center', justify: 'center', gap: '8px' }}
                       onClick={() => {
-                        const waMessage = `Hi PropDeal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
+                        const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
                         const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodeURIComponent(waMessage)}`;
                         window.open(waUrl, '_blank');
                       }}
@@ -1423,7 +1422,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
         zIndex: 10
       }}>
         <div>
-          © {new Date().getFullYear()} <strong>PropDeal ERP Suite</strong>. All rights reserved.
+          © {new Date().getFullYear()} <strong>Kaira Deal ERP Suite</strong>. All rights reserved.
         </div>
         <div style={{ display: 'flex', gap: '20px' }}>
           <span style={{ cursor: 'pointer' }} onClick={() => handleNavClick('home')}>Home</span>
@@ -1442,7 +1441,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
             <div className="play-modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Layers size={16} style={{ color: 'var(--primary)' }} />
-                <span style={{ fontWeight: '800', color: 'var(--text-main)', fontSize: '15px' }}>PropDeal ERP Product Tour</span>
+                <span style={{ fontWeight: '800', color: 'var(--text-main)', fontSize: '15px' }}>Kaira Deal ERP Product Tour</span>
               </div>
               <button 
                 type="button" 
@@ -1472,7 +1471,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 </div>
                 <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '8px' }}>Guided Video Tour Sandbox</h3>
                 <p style={{ fontSize: '12.5px', color: '#94a3b8', maxWidth: '380px', margin: '0 auto 24px auto', lineHeight: '1.5' }}>
-                  Explore how PropDeal manages plots, billing invoicing, agent commissions, and instant client lead collection.
+                  Explore how Kaira Deal manages plots, billing invoicing, agent commissions, and instant client lead collection.
                 </p>
                 <button 
                   type="button" 
