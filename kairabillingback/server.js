@@ -799,6 +799,17 @@ app.post('/api/leads', async (req, res) => {
 
   try {
     if (useMySQL) {
+      if (status === 'New Lead') {
+        const [newLeadsList] = await dbPool.query(
+          "SELECT id FROM Leads WHERE status = 'New Lead' ORDER BY id ASC"
+        );
+        if (newLeadsList.length >= 5) {
+          const oldestId = newLeadsList[0].id;
+          await dbPool.query("DELETE FROM Leads WHERE id = ?", [oldestId]);
+          console.log(`[DB Sync] Automatically removed oldest New Lead to maintain maximum 5: ${oldestId}`);
+        }
+      }
+
       const [rows] = await dbPool.query('SELECT id FROM Leads');
       const ids = rows.map(r => parseInt(r.id.replace('L', ''), 10)).filter(num => !isNaN(num));
       const nextIdNum = ids.length > 0 ? Math.max(...ids) + 1 : 1;
@@ -811,6 +822,19 @@ app.post('/api/leads', async (req, res) => {
       res.status(201).json({ id, name, mobile, requirement, status, avatar });
     } else {
       const leads = readJSON(leadsFile);
+      if (status === 'New Lead') {
+        const currentNewLeads = leads.filter(l => l.status === 'New Lead');
+        if (currentNewLeads.length >= 5) {
+          currentNewLeads.sort((a, b) => a.id.localeCompare(b.id));
+          const oldestId = currentNewLeads[0].id;
+          const indexToRemove = leads.findIndex(l => l.id === oldestId);
+          if (indexToRemove !== -1) {
+            leads.splice(indexToRemove, 1);
+            console.log(`[Offline Backup] Automatically removed oldest New Lead to maintain maximum 5: ${oldestId}`);
+          }
+        }
+      }
+
       const ids = leads.map(l => parseInt(l.id.replace('L', ''), 10)).filter(num => !isNaN(num));
       const nextIdNum = ids.length > 0 ? Math.max(...ids) + 1 : 1;
       const id = `L${String(nextIdNum).padStart(3, '0')}`;
