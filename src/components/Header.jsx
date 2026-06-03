@@ -108,7 +108,12 @@ export default function Header({
     }
   };
 
-  const newLeads = Array.isArray(leads) ? leads.filter(l => l.status === 'New Lead') : [];
+  const newLeads = Array.isArray(leads) 
+    ? [...leads]
+        .filter(l => l.status === 'New Lead')
+        .sort((a, b) => b.id.localeCompare(a.id))
+        .slice(0, 5)
+    : [];
   const notificationCount = newLeads.length;
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
