@@ -5,21 +5,25 @@ import { Home, ArrowLeft, MessageSquare, Send, CheckCircle2 } from 'lucide-react
 export default function PublicInquiryScreen({ onSwitchToLogin }) {
   const [defaultDealerPhone, setDefaultDealerPhone] = React.useState("918226811810");
 
+  const [contacts, setContacts] = useState([]);
+  const [selectedContactPhone, setSelectedContactPhone] = useState('');
+
   React.useEffect(() => {
-    const fetchContactSetting = async () => {
+    const fetchContacts = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/settings/contact');
+        const response = await fetch('http://127.0.0.1:5000/api/settings/contacts');
         if (response.ok) {
           const data = await response.json();
-          if (data.whatsappNumber) {
-            setDefaultDealerPhone(data.whatsappNumber);
+          setContacts(data);
+          if (data.length > 0) {
+            setSelectedContactPhone(data[0].whatsappNumber);
           }
         }
       } catch (error) {
-        console.error("Failed to fetch dynamic settings contact phone:", error);
+        console.error("Failed to fetch active contacts:", error);
       }
     };
-    fetchContactSetting();
+    fetchContacts();
   }, []);
 
   const DEALER_WHATSAPP = localStorage.getItem('propdeal_user_phone') || defaultDealerPhone;
@@ -66,7 +70,7 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
         if (type === 'whatsapp') {
           const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
           const encodedMessage = encodeURIComponent(waMessage);
-          const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
+          const waUrl = `https://wa.me/${selectedContactPhone || DEALER_WHATSAPP}?text=${encodedMessage}`;
           
           // Open WhatsApp in a new tab
           window.open(waUrl, '_blank');
@@ -82,7 +86,7 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
       if (type === 'whatsapp') {
         const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
         const encodedMessage = encodeURIComponent(waMessage);
-        const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
+        const waUrl = `https://wa.me/${selectedContactPhone || DEALER_WHATSAPP}?text=${encodedMessage}`;
         window.open(waUrl, '_blank');
       }
     } finally {
@@ -162,6 +166,26 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
                     />
                   </div>
                 </div>
+
+                {/* Select Contact Person */}
+                {contacts.length > 0 && (
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <label className="auth-label">Contact Person / Department *</label>
+                    <select 
+                      className="auth-phone-select" 
+                      style={{ width: '100%', padding: '10px', height: '42px', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}
+                      value={selectedContactPhone}
+                      onChange={(e) => setSelectedContactPhone(e.target.value)}
+                      disabled={loading}
+                    >
+                      {contacts.map((c, i) => (
+                        <option key={i} value={c.whatsappNumber}>
+                          {c.fullName} ({c.role})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Requirement Type */}
                 <div className="form-group" style={{ marginBottom: '20px' }}>
@@ -265,7 +289,7 @@ export default function PublicInquiryScreen({ onSwitchToLogin }) {
                   style={{ background: 'var(--success-icon)', display: 'flex', alignItems: 'center', justify: 'center', gap: '8px' }}
                   onClick={() => {
                     const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. My contact number is ${mobile}. Let's connect!`;
-                    const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodeURIComponent(waMessage)}`;
+                    const waUrl = `https://wa.me/${selectedContactPhone || DEALER_WHATSAPP}?text=${encodeURIComponent(waMessage)}`;
                     window.open(waUrl, '_blank');
                   }}
                 >
