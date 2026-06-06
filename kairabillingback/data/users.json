@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "userId": 1,
+    "fullName": "shobit kumar",
+    "emailAddress": "abc@gmail.com",
+    "countryCode": "+91",
+    "phoneNumber": "9319722643",
+    "passwordHash": "e69d4e69e3f96cf3bfa134fb74b388ce4899603decfe254d769bd4d4d2334b13",
+    "role": "Super Admin",
+    "companyName": "mojija e commerce",
+    "city": null,
+    "state": null,
+    "profileImage": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
+  }
+]
