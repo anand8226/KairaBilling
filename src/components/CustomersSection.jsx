@@ -144,7 +144,12 @@ export default function CustomersSection({ properties = [], leads = [], searchQu
                           type="button" 
                           className="badge info"
                           style={{ border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(37,99,235,0.06)', color: 'var(--primary-color)' }}
-                          onClick={() => alert(`💬 Contacting Buyer ${b.name}: Opening WhatsApp/Inquiry chat.`)}
+                          onClick={() => {
+                            const cleanPhone = b.mobile.replace(/\D/g, '');
+                            const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+                            const waMsg = `Hi ${b.name}! I am contacting you from Kaira Deal regarding your requirement: *${b.requirement}*. Let's connect!`;
+                            window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(waMsg)}`, '_blank');
+                          }}
                         >
                           <MessageSquare size={10} /> Contact
                         </button>
@@ -221,7 +226,12 @@ export default function CustomersSection({ properties = [], leads = [], searchQu
                           type="button" 
                           className="badge info"
                           style={{ border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(37,99,235,0.06)', color: 'var(--primary-color)' }}
-                          onClick={() => alert(`💬 Contacting Owner ${s.name}: Opening WhatsApp/Inquiry chat.`)}
+                          onClick={() => {
+                            const cleanPhone = s.mobile.replace(/\D/g, '');
+                            const formattedPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+                            const waMsg = `Hi ${s.name}! I am contacting you from Kaira Deal regarding your property listing: *${s.propertyName}* valued at ${formatCurrency(s.price)}. Let's connect!`;
+                            window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(waMsg)}`, '_blank');
+                          }}
                         >
                           <MessageSquare size={10} /> Call Owner
                         </button>

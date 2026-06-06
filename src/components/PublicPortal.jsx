@@ -9,6 +9,9 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
   // Dynamic default phone setting fetched from backend DB Settings (fallback if no user logged in on this laptop)
   const [defaultDealerPhone, setDefaultDealerPhone] = useState("918226811810");
 
+  const [contacts, setContacts] = useState([]);
+  const [selectedContactPhone, setSelectedContactPhone] = useState('');
+
   const DEALER_WHATSAPP = localStorage.getItem('propdeal_user_phone') || defaultDealerPhone;
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'plots' | 'about' | 'contact'
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,22 +50,23 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
       }
     };
     
-    const fetchContactSetting = async () => {
+    const fetchContacts = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/settings/contact');
+        const response = await fetch('http://127.0.0.1:5000/api/settings/contacts');
         if (response.ok) {
           const data = await response.json();
-          if (data.whatsappNumber) {
-            setDefaultDealerPhone(data.whatsappNumber);
+          setContacts(data);
+          if (data.length > 0) {
+            setSelectedContactPhone(data[0].whatsappNumber);
           }
         }
       } catch (error) {
-        console.error("Failed to fetch dynamic settings contact phone:", error);
+        console.error("Failed to fetch active contacts:", error);
       }
     };
 
     fetchLeads();
-    fetchContactSetting();
+    fetchContacts();
   }, [success]);
 
   // Dynamic Statistics Calculations based on real database records
@@ -138,7 +142,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
         if (type === 'whatsapp') {
           const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
           const encodedMessage = encodeURIComponent(waMessage);
-          const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
+          const waUrl = `https://wa.me/${selectedContactPhone || DEALER_WHATSAPP}?text=${encodedMessage}`;
           window.open(waUrl, '_blank');
         }
       } else {
@@ -150,7 +154,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
       if (type === 'whatsapp') {
         const waMessage = `Hi Kaira Deal! My name is ${name}. I am looking for a ${requirement}. \n*Message*: ${customMessage || 'I want more details.'}\n*Contact*: ${mobile}.`;
         const encodedMessage = encodeURIComponent(waMessage);
-        const waUrl = `https://wa.me/${DEALER_WHATSAPP}?text=${encodedMessage}`;
+        const waUrl = `https://wa.me/${selectedContactPhone || DEALER_WHATSAPP}?text=${encodedMessage}`;
         window.open(waUrl, '_blank');
       }
     } finally {
@@ -1321,6 +1325,26 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                         />
                       </div>
                     </div>
+
+                    {/* Department / Contact Person */}
+                    {contacts.length > 0 && (
+                      <div className="form-group">
+                        <label className="auth-label" style={{ fontSize: '12px', fontWeight: '700' }}>Contact Person / Department *</label>
+                        <select 
+                          className="auth-phone-select" 
+                          style={{ width: '100%', padding: '10px', height: '42px', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}
+                          value={selectedContactPhone}
+                          onChange={(e) => setSelectedContactPhone(e.target.value)}
+                          disabled={loading}
+                        >
+                          {contacts.map((c, i) => (
+                            <option key={i} value={c.whatsappNumber}>
+                              {c.fullName} ({c.role})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
 
                     {/* Requirement Menu */}
                     <div className="form-group">

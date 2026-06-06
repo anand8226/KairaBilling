@@ -168,6 +168,28 @@ export default function App() {
   }, [isAuthenticated, userRole]);
 
   /* ============================================================================
+     Background Leads Synchronizer: Polls database leads registry every 8 seconds
+     ============================================================================ */
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    const interval = setInterval(async () => {
+      try {
+        const resLeads = await fetch('http://127.0.0.1:5000/api/leads');
+        if (resLeads.ok) {
+          const dataLeads = await resLeads.json();
+          // Deep compare/check if content changed to prevent redundant component re-renders
+          setLeads(dataLeads);
+        }
+      } catch (error) {
+        console.warn('⚠️ Background leads auto-sync failed. Offline or API disconnected.');
+      }
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  /* ============================================================================
      Reset selectedPropertyToSell when navigating away from the workspace page
      ============================================================================ */
   useEffect(() => {
@@ -310,7 +332,14 @@ export default function App() {
 
         if (response.ok) {
           const addedLead = await response.json();
-          setLeads([...leads, addedLead]);
+          // Refetch leads to get the exact synchronized list (handling any automatic removals)
+          const resLeads = await fetch('http://127.0.0.1:5000/api/leads');
+          if (resLeads.ok) {
+            const dataLeads = await resLeads.json();
+            setLeads(dataLeads);
+          } else {
+            setLeads([...leads, addedLead]);
+          }
           console.log(`✅ [DB Sync] Persisted lead ${addedLead.id} inside MySQL database.`);
         } else {
           throw new Error('POST lead failed');

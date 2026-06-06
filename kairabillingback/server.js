@@ -583,6 +583,55 @@ app.get('/api/settings/contact', async (req, res) => {
   }
 });
 
+// 2.6. Settings: Fetch All Active Contacts (Super Admin, Manager, Agent) for Public Inquiries
+app.get('/api/settings/contacts', async (req, res) => {
+  try {
+    let contacts = [];
+    if (useMySQL) {
+      const [rows] = await dbPool.query("SELECT FullName, Role, PhoneNumber, CountryCode FROM Users");
+      contacts = rows.map(r => {
+        const cleanPhone = r.PhoneNumber.replace(/\D/g, '');
+        const cleanCode = (r.CountryCode || '+91').replace(/\D/g, '');
+        const formatted = cleanPhone.length === 10 ? (cleanCode || '91') + cleanPhone : cleanPhone;
+        return {
+          fullName: r.FullName,
+          role: r.Role,
+          whatsappNumber: formatted
+        };
+      });
+    } else {
+      const users = readJSON(localUsersFile);
+      contacts = users.map(u => {
+        const cleanPhone = u.phoneNumber.replace(/\D/g, '');
+        const cleanCode = (u.countryCode || '+91').replace(/\D/g, '');
+        const formatted = cleanPhone.length === 10 ? (cleanCode || '91') + cleanPhone : cleanPhone;
+        return {
+          fullName: u.fullName,
+          role: u.role,
+          whatsappNumber: formatted
+        };
+      });
+    }
+    
+    if (contacts.length === 0) {
+      contacts.push({
+        fullName: "Anand Kumar",
+        role: "Super Admin",
+        whatsappNumber: "918226811810"
+      });
+    }
+    res.json(contacts);
+  } catch (error) {
+    res.json([
+      {
+        fullName: "Anand Kumar",
+        role: "Super Admin",
+        whatsappNumber: "918226811810"
+      }
+    ]);
+  }
+});
+
 // 3. Properties: Fetch Registry
 app.get('/api/properties', async (req, res) => {
   try {
@@ -750,6 +799,17 @@ app.post('/api/leads', async (req, res) => {
 
   try {
     if (useMySQL) {
+      if (status === 'New Lead') {
+        const [newLeadsList] = await dbPool.query(
+          "SELECT id FROM Leads WHERE status = 'New Lead' ORDER BY id ASC"
+        );
+        if (newLeadsList.length >= 5) {
+          const oldestId = newLeadsList[0].id;
+          await dbPool.query("DELETE FROM Leads WHERE id = ?", [oldestId]);
+          console.log(`[DB Sync] Automatically removed oldest New Lead to maintain maximum 5: ${oldestId}`);
+        }
+      }
+
       const [rows] = await dbPool.query('SELECT id FROM Leads');
       const ids = rows.map(r => parseInt(r.id.replace('L', ''), 10)).filter(num => !isNaN(num));
       const nextIdNum = ids.length > 0 ? Math.max(...ids) + 1 : 1;
@@ -762,6 +822,19 @@ app.post('/api/leads', async (req, res) => {
       res.status(201).json({ id, name, mobile, requirement, status, avatar });
     } else {
       const leads = readJSON(leadsFile);
+      if (status === 'New Lead') {
+        const currentNewLeads = leads.filter(l => l.status === 'New Lead');
+        if (currentNewLeads.length >= 5) {
+          currentNewLeads.sort((a, b) => a.id.localeCompare(b.id));
+          const oldestId = currentNewLeads[0].id;
+          const indexToRemove = leads.findIndex(l => l.id === oldestId);
+          if (indexToRemove !== -1) {
+            leads.splice(indexToRemove, 1);
+            console.log(`[Offline Backup] Automatically removed oldest New Lead to maintain maximum 5: ${oldestId}`);
+          }
+        }
+      }
+
       const ids = leads.map(l => parseInt(l.id.replace('L', ''), 10)).filter(num => !isNaN(num));
       const nextIdNum = ids.length > 0 ? Math.max(...ids) + 1 : 1;
       const id = `L${String(nextIdNum).padStart(3, '0')}`;
