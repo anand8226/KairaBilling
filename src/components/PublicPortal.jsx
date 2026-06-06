@@ -527,6 +527,42 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                   </div>
                 </div>
 
+                {/* 3. ERP Solution */}
+              <div className="saas-module-card accent-purple">
+                <div className="saas-module-icon-wrap">
+                  <Layers size={24} />
+                </div>
+
+                <h3 className="saas-module-title">School ERP</h3>
+
+                <p className="saas-module-desc">
+                  Cloud-based school management system with student admissions, attendance, fee management, parent-teacher communication, real-time reporting, and centralized administration.
+                </p>
+
+                <div className="saas-module-features-list">
+                  <div className="saas-module-feature-item">
+                    <CheckCircle2 size={13} /> Cloud Based System
+                  </div>
+
+                  <div className="saas-module-feature-item">
+                    <CheckCircle2 size={13} /> Unlimited Student Registration
+                  </div>
+
+                  <div className="saas-module-feature-item">
+                    <CheckCircle2 size={13} />Teacher & Parent Access
+                  </div>
+
+                  <div className="saas-module-feature-item">
+                    <CheckCircle2 size={13} /> Multi-User Role Management
+                  </div>
+
+                  <div className="saas-module-feature-item">
+                    <CheckCircle2 size={13} /> Browser Acess Control
+                  </div>
+                </div>
+              </div>
+                  
+
                 {/* 3. Restaurant */}
                 <div className="saas-module-card accent-violet">
                   <div className="saas-module-icon-wrap">
