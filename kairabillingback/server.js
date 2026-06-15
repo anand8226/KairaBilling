@@ -437,7 +437,8 @@ app.post('/api/auth/register', async (req, res) => {
           role: userRole,
           companyName: company,
           city: userCity,
-          state: userState
+          state: userState,
+          profileImage: profileImage
         }
       });
     } else {
@@ -475,7 +476,8 @@ app.post('/api/auth/register', async (req, res) => {
           role: userRole,
           companyName: company,
           city: userCity,
-          state: userState
+          state: userState,
+          profileImage: newUser.profileImage
         }
       });
     }
@@ -543,7 +545,8 @@ app.post('/api/auth/login', async (req, res) => {
         role: user.Role || user.role || 'Agent',
         companyName: user.CompanyName || user.companyName || '',
         city: user.City || user.city || '',
-        state: user.State || user.state || ''
+        state: user.State || user.state || '',
+        profileImage: user.ProfileImage || user.profileImage || ''
       }
     });
   } catch (error) {

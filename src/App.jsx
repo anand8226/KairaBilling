@@ -198,6 +198,16 @@ export default function App() {
     }
   }, [activeTab]);
 
+  // Parse URL hash on mount to support direct link landing (e.g. #login, #signup)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === '#login') {
+      setPublicViewMode('login');
+    } else if (hash === '#signup' || hash === '#register') {
+      setPublicViewMode('signup');
+    }
+  }, []);
+
   /* ============================================================================
      Dynamic Calculations: Computes statistics EXCLUSIVELY from DB arrays (no dummy offsets)
      ============================================================================ */
@@ -561,6 +571,55 @@ export default function App() {
       setProperties(properties.filter(p => p.id !== id));
     }
   };
+
+  const handleStatsCardClick = (cardId) => {
+    switch (cardId) {
+      // Super Admin Cards
+      case 'admin-sales':
+        setActiveTab('deals');
+        break;
+      case 'admin-purchases':
+        alert("⚠️ Warning: The Today's Purchase UI module has not been built yet!");
+        break;
+      case 'admin-customers':
+        setActiveTab('customers');
+        break;
+      case 'admin-profit':
+        setActiveTab('reports');
+        break;
+
+      // Manager Cards
+      case 'mgr-active-assets':
+        setActiveTab('properties');
+        break;
+      case 'mgr-visits':
+        setActiveTab('visits');
+        break;
+      case 'mgr-reqs':
+        setActiveTab('requirements');
+        break;
+      case 'mgr-commission':
+        alert("⚠️ Warning: The ERP Brokerage Earned UI module has not been built yet!");
+        break;
+
+      // Agent Cards
+      case 'agent-deals':
+        setActiveTab('deals');
+        break;
+      case 'agent-commission':
+        alert("⚠️ Warning: The My Brokerage Earned UI module has not been built yet!");
+        break;
+      case 'agent-leads':
+        setActiveTab('customers');
+        break;
+      case 'agent-plots':
+        setActiveTab('properties');
+        break;
+
+      default:
+        alert("⚠️ Warning: This module UI is under development!");
+    }
+  };
   
   // Calculate dynamic sales chart coordinates driven strictly by the MySQL deals database
   const getDynamicChartPoints = () => {
@@ -639,8 +698,14 @@ export default function App() {
       return (
         <PublicPortal 
           properties={properties} 
-          onLoginTrigger={() => setPublicViewMode('login')}
-          onSignupTrigger={() => setPublicViewMode('signup')}
+          onLoginTrigger={() => {
+            window.location.hash = 'login';
+            setPublicViewMode('login');
+          }}
+          onSignupTrigger={() => {
+            window.location.hash = 'signup';
+            setPublicViewMode('signup');
+          }}
         />
       );
     }
@@ -649,7 +714,10 @@ export default function App() {
       <AuthScreen 
         onLoginSuccess={handleLoginSuccess} 
         initialMode={publicViewMode === 'login' ? 'login' : 'register'}
-        onBackToWebsite={() => setPublicViewMode('portal')}
+        onBackToWebsite={() => {
+          window.location.hash = 'home';
+          setPublicViewMode('portal');
+        }}
       />
     );
   }
@@ -698,10 +766,11 @@ export default function App() {
               requirements={requirements}
               visits={visits}
               commissionEarned={commissionEarned}
+              onCardClick={handleStatsCardClick}
             />
 
             {/* 2. Top Interactive Section: Sales Overview SVG Graph + Top Products/Listings Side-by-Side */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '24px', marginBottom: '24px' }}>
+            <div className="grid-2-cols" style={{ marginBottom: '24px' }}>
               {/* Sales Overview Line Chart Card */}
               <div className="dashboard-card" style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -789,7 +858,7 @@ export default function App() {
             </div>
 
             {/* 3. Middle Section: Low Inventory Alerts, Recent Invoices, and Recent Payments Side-by-Side */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+            <div className="grid-3-cols" style={{ marginBottom: '24px' }}>
               
               {/* Card 1: High Demand / Low Stock Alerts */}
               <div className="dashboard-card" style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
@@ -877,7 +946,7 @@ export default function App() {
             </div>
 
             {/* 4. Bottom ERP Status Strip */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', background: '#fff', padding: '16px 24px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', marginBottom: '24px' }}>
+            <div className="grid-4-cols" style={{ background: '#fff', padding: '16px 24px', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderRight: '1px solid var(--border-color)' }}>
                 <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--info-bg)', color: 'var(--info-icon)', display: 'flex', alignItems: 'center', justify: 'center' }}>
                   <Home size={16} />

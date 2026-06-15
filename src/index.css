@@ -527,6 +527,7 @@ a {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .stat-card:hover {
@@ -2307,6 +2308,7 @@ a {
   flex-direction: column;
   gap: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+  cursor: pointer;
 }
 
 .saas-module-card:hover {
@@ -2840,6 +2842,99 @@ a {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* -------------------------------------------------------------
+ * Responsive Grid Utility Classes (replacing inline styles)
+ * ------------------------------------------------------------- */
+.grid-2-cols {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 991px) {
+  .grid-2-cols {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.grid-equal-2-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 600px) {
+  .grid-equal-2-cols {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.grid-3-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 991px) {
+  .grid-3-cols {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.grid-4-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1200px) {
+  .grid-4-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .grid-4-cols {
+    grid-template-columns: 1fr;
+    padding: 16px !important;
+  }
+}
+
+.grid-add-prop {
+  display: grid;
+  grid-template-columns: 1.1fr 1.6fr;
+  gap: 32px;
+}
+@media (max-width: 991px) {
+  .grid-add-prop {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.grid-sell-prop {
+  display: grid;
+  grid-template-columns: 1.5fr 1.1fr;
+  gap: 32px;
+}
+@media (max-width: 991px) {
+  .grid-sell-prop {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.grid-reports {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 991px) {
+  .grid-reports {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
 
 
 

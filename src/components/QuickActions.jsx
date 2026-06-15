@@ -30,21 +30,21 @@ export default function QuickActions({ onAddProperty, onAddCustomer, onSellPrope
       label: 'Create Agreement',
       icon: FileText,
       colorClass: 'orange',
-      handler: () => alert("📄 Agreement Builder tool opened! Select a property and customer to generate standard contract drafts.")
+      handler: () => alert("⚠️ Warning: The Agreement Builder UI module has not been built yet!")
     },
     {
       id: 'record-payment',
       label: 'Record Payment',
       icon: Landmark,
       colorClass: 'teal',
-      handler: () => alert("💳 Payment Ledger overlay active! Enter transaction receipt details to append to Revenue ledger.")
+      handler: () => alert("⚠️ Warning: The Payment Ledger UI module has not been built yet!")
     },
     {
       id: 'lead-management',
       label: 'Lead Management',
       icon: Users,
       colorClass: 'purple',
-      handler: () => alert("👥 Opening CRM Sales Pipeline boards to manage lead tags and agent allocations.")
+      handler: () => alert("⚠️ Warning: The Lead Management CRM boards UI module has not been built yet!")
     }
   ];
 
