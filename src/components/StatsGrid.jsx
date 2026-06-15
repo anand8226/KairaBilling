@@ -176,7 +176,7 @@ export default function StatsGrid({
   }
 
   return (
-    <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '24px' }}>
+    <div className="stats-grid" style={{ marginBottom: '24px' }}>
       {cards.map((card) => {
         const Icon = card.icon;
         return (
