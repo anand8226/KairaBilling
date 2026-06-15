@@ -14,6 +14,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
 
   const DEALER_WHATSAPP = localStorage.getItem('propdeal_user_phone') || defaultDealerPhone;
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'plots' | 'about' | 'contact'
+  const [activeSection, setActiveSection] = useState('home'); // 'home' | 'features' | 'modules' | 'previews' | 'plots' | 'about' | 'contact'
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All');
   
@@ -35,6 +36,38 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
 
   // Database-fetched leads for dynamic previewing
   const [dbLeads, setDbLeads] = useState([]);
+
+  // Listen to hashchange events and parse initial hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        if (['features', 'modules', 'previews'].includes(hash)) {
+          setActiveTab('home');
+          setActiveSection(hash);
+        } else if (['home', 'plots', 'about', 'contact'].includes(hash)) {
+          setActiveTab(hash);
+          setActiveSection(hash);
+        }
+      }
+    };
+
+    handleHashChange(); // Run once on mount to parse initial link hash
+    
+    // Smooth scroll down if loading a sub-section on mount
+    const hash = window.location.hash.replace('#', '');
+    if (hash && ['features', 'modules', 'previews'].includes(hash)) {
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 500);
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Fetch leads and dynamic settings on mount to populate previews and target phone numbers
   useEffect(() => {
@@ -172,6 +205,9 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
 
   const handleNavClick = (tab, sectionId = null) => {
     setActiveTab(tab);
+    const sec = sectionId || tab;
+    setActiveSection(sec);
+    window.location.hash = sec;
     if (sectionId) {
       setTimeout(() => {
         const element = document.getElementById(sectionId);
@@ -213,49 +249,49 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
         <div className="saas-nav-links">
           <button 
             type="button" 
-            className={`saas-nav-link ${activeTab === 'home' ? 'active' : ''}`}
+            className={`saas-nav-link ${activeSection === 'home' ? 'active' : ''}`}
             onClick={() => handleNavClick('home')}
           >
             Home
           </button>
           <button 
             type="button" 
-            className="saas-nav-link"
+            className={`saas-nav-link ${activeSection === 'features' ? 'active' : ''}`}
             onClick={() => handleNavClick('home', 'features')}
           >
             Features
           </button>
           <button 
             type="button" 
-            className="saas-nav-link"
+            className={`saas-nav-link ${activeSection === 'modules' ? 'active' : ''}`}
             onClick={() => handleNavClick('home', 'modules')}
           >
             Modules
           </button>
           <button 
             type="button" 
-            className="saas-nav-link"
+            className={`saas-nav-link ${activeSection === 'previews' ? 'active' : ''}`}
             onClick={() => handleNavClick('home', 'previews')}
           >
             Dashboard Demo
           </button>
           <button 
             type="button" 
-            className={`saas-nav-link ${activeTab === 'plots' ? 'active' : ''}`}
+            className={`saas-nav-link ${activeSection === 'plots' ? 'active' : ''}`}
             onClick={() => handleNavClick('plots')}
           >
             Plots Showcase
           </button>
           <button 
             type="button" 
-            className={`saas-nav-link ${activeTab === 'about' ? 'active' : ''}`}
+            className={`saas-nav-link ${activeSection === 'about' ? 'active' : ''}`}
             onClick={() => handleNavClick('about')}
           >
             About Us
           </button>
           <button 
             type="button" 
-            className={`saas-nav-link ${activeTab === 'contact' ? 'active' : ''}`}
+            className={`saas-nav-link ${activeSection === 'contact' ? 'active' : ''}`}
             onClick={() => handleNavClick('contact')}
           >
             Contact
@@ -490,7 +526,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
               <div className="saas-modules-grid">
                 
                 {/* 1. Retail Shop */}
-                <div className="saas-module-card accent-blue">
+                <div 
+                  className="saas-module-card accent-blue"
+                  onClick={() => alert("⚠️ Warning: The Retail Shop UI module is under development / not built yet!")}
+                >
                   <div className="saas-module-icon-wrap">
                     <ShoppingBag size={24} />
                   </div>
@@ -509,7 +548,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 </div>
 
                 {/* 2. Pharmacy */}
-                <div className="saas-module-card accent-emerald">
+                <div 
+                  className="saas-module-card accent-emerald"
+                  onClick={() => alert("⚠️ Warning: The Pharmacy UI module is under development / not built yet!")}
+                >
                   <div className="saas-module-icon-wrap">
                     <Activity size={24} />
                   </div>
@@ -528,7 +570,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 </div>
 
                 {/* 3. ERP Solution */}
-              <div className="saas-module-card accent-purple">
+              <div 
+                className="saas-module-card accent-purple"
+                onClick={() => alert("⚠️ Warning: The School ERP UI module is under development / not built yet!")}
+              >
                 <div className="saas-module-icon-wrap">
                   <Layers size={24} />
                 </div>
@@ -564,7 +609,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                   
 
                 {/* 3. Restaurant */}
-                <div className="saas-module-card accent-violet">
+                <div 
+                  className="saas-module-card accent-violet"
+                  onClick={() => alert("⚠️ Warning: The Restaurant UI module is under development / not built yet!")}
+                >
                   <div className="saas-module-icon-wrap">
                     <Utensils size={24} />
                   </div>
@@ -583,7 +631,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 </div>
 
                 {/* 4. Property Dealer (SPECIALTY HIGHLIGHT) */}
-                <div className="saas-module-card accent-blue specialty-highlight">
+                <div 
+                  className="saas-module-card accent-blue specialty-highlight"
+                  onClick={onLoginTrigger}
+                >
                   <div className="saas-module-icon-wrap">
                     <Home size={24} />
                   </div>
@@ -604,7 +655,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 </div>
 
                 {/* 5. Warehouse */}
-                <div className="saas-module-card accent-orange">
+                <div 
+                  className="saas-module-card accent-orange"
+                  onClick={() => alert("⚠️ Warning: The Warehouse UI module is under development / not built yet!")}
+                >
                   <div className="saas-module-icon-wrap">
                     <Warehouse size={24} />
                   </div>
@@ -623,7 +677,10 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 </div>
 
                 {/* 6. Distributor */}
-                <div className="saas-module-card accent-pink">
+                <div 
+                  className="saas-module-card accent-pink"
+                  onClick={() => alert("⚠️ Warning: The Distributor UI module is under development / not built yet!")}
+                >
                   <div className="saas-module-icon-wrap">
                     <Truck size={24} />
                   </div>

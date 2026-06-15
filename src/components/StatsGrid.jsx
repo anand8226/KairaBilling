@@ -8,7 +8,8 @@ export default function StatsGrid({
   deals = [],
   requirements = [],
   visits = [],
-  commissionEarned = 0
+  commissionEarned = 0,
+  onCardClick = () => {}
 }) {
   
   // Format as Indian Currency (e.g. ₹45,231)
@@ -197,6 +198,7 @@ export default function StatsGrid({
               overflow: 'hidden',
               animation: 'fade-in 0.3s ease-out'
             }}
+            onClick={() => onCardClick(card.id)}
           >
             {/* Soft decorative glow ring */}
             <div style={{

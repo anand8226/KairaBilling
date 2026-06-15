@@ -10,6 +10,11 @@ export default function AuthScreen({ onLoginSuccess, initialMode = 'login', onBa
     setAuthMode(initialMode);
   }, [initialMode]);
 
+  // Sync auth mode changes with browser URL hash
+  useEffect(() => {
+    window.location.hash = authMode === 'login' ? 'login' : 'signup';
+  }, [authMode]);
+
   if (authMode === 'login') {
     return (
       <LoginScreen 
