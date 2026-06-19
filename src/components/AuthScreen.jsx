@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LoginScreen from './LoginScreen';
 import SignupScreen from './SignupScreen';
 
-export default function AuthScreen({ onLoginSuccess, initialMode = 'login', onBackToWebsite }) {
+export default function AuthScreen({ onLoginSuccess, initialMode = 'login', onBackToWebsite, appModule = 'PropertyDealer' }) {
   const [authMode, setAuthMode] = useState(initialMode); // 'login' or 'register'
 
   // Ensure state matches external initialMode change if any
@@ -21,6 +21,7 @@ export default function AuthScreen({ onLoginSuccess, initialMode = 'login', onBa
         onLoginSuccess={onLoginSuccess} 
         onSwitchToSignup={() => setAuthMode('register')} 
         onBackToWebsite={onBackToWebsite}
+        appModule={appModule}
       />
     );
   }
@@ -29,6 +30,7 @@ export default function AuthScreen({ onLoginSuccess, initialMode = 'login', onBa
     <SignupScreen 
       onSwitchToLogin={() => setAuthMode('login')} 
       onBackToWebsite={onBackToWebsite}
+      appModule={appModule}
     />
   );
 }

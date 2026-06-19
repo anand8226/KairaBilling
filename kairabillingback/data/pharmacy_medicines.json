@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Paracetamol",
+    "genericName": "Acetaminophen",
+    "brandName": "Calpol",
+    "hsnCode": "3004",
+    "gstPercent": 12,
+    "batchNumber": "B1092",
+    "expiryDate": "2026-12-31",
+    "mrp": 40,
+    "purchaseRate": 25,
+    "saleRate": 35,
+    "unit": "Strip",
+    "category": "Tablet",
+    "stock": 120
+  },
+  {
+    "id": 2,
+    "name": "Amoxicillin",
+    "genericName": "Amoxicillin Trihydrate",
+    "brandName": "Novamox",
+    "hsnCode": "3004",
+    "gstPercent": 18,
+    "batchNumber": "B2201",
+    "expiryDate": "2027-05-30",
+    "mrp": 95,
+    "purchaseRate": 60,
+    "saleRate": 85,
+    "unit": "Strip",
+    "category": "Capsule",
+    "stock": 50
+  },
+  {
+    "id": 3,
+    "name": "Cetirizine",
+    "genericName": "Cetirizine Hydrochloride",
+    "brandName": "Alerid",
+    "hsnCode": "3004",
+    "gstPercent": 12,
+    "batchNumber": "B1155",
+    "expiryDate": "2026-10-15",
+    "mrp": 30,
+    "purchaseRate": 15,
+    "saleRate": 26,
+    "unit": "Strip",
+    "category": "Tablet",
+    "stock": 200
+  }
+]
