@@ -5,7 +5,7 @@ import {
   BarChart3, Users, CloudLightning, Contact2, GitBranch, Play, Check, X, ChevronRight, Monitor, Smartphone
 } from 'lucide-react';
 
-export default function PublicPortal({ properties = [], onLoginTrigger, onSignupTrigger }) {
+export default function PublicPortal({ properties = [], onLoginTrigger, onSignupTrigger, onPharmacyTrigger }) {
   // Dynamic default phone setting fetched from backend DB Settings (fallback if no user logged in on this laptop)
   const [defaultDealerPhone, setDefaultDealerPhone] = useState("918226811810");
 
@@ -49,6 +49,9 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
           setActiveTab(hash);
           setActiveSection(hash);
         }
+      } else {
+        setActiveTab('home');
+        setActiveSection('home');
       }
     };
 
@@ -207,7 +210,13 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
     setActiveTab(tab);
     const sec = sectionId || tab;
     setActiveSection(sec);
-    window.location.hash = sec;
+    
+    if (sec === 'home') {
+      window.history.pushState("", document.title, window.location.pathname + window.location.search);
+    } else {
+      window.location.hash = sec;
+    }
+    
     if (sectionId) {
       setTimeout(() => {
         const element = document.getElementById(sectionId);
@@ -550,7 +559,7 @@ export default function PublicPortal({ properties = [], onLoginTrigger, onSignup
                 {/* 2. Pharmacy */}
                 <div 
                   className="saas-module-card accent-emerald"
-                  onClick={() => alert("⚠️ Warning: The Pharmacy UI module is under development / not built yet!")}
+                  onClick={onPharmacyTrigger}
                 >
                   <div className="saas-module-icon-wrap">
                     <Activity size={24} />

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Home, ArrowLeft, X, KeyRound, Smartphone, CheckCircle2 } from 'lucide-react';
 
-export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackToWebsite }) {
+export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackToWebsite, appModule = 'PropertyDealer' }) {
+  const isPharmacy = appModule === 'Pharmacy';
   const [countryCode, setCountryCode] = useState('+91');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [loginRole, setLoginRole] = useState('Agent'); // Roles: 'Super Admin', 'Manager', 'Agent'
+  const [loginRole, setLoginRole] = useState(isPharmacy ? 'Admin' : 'Agent'); // Adaptive roles
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,8 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
           countryCode, 
           phoneNumber: phone, 
           password,
-          role: loginRole 
+          role: loginRole,
+          appModule
         })
       });
 
@@ -59,7 +61,17 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
   };
 
   return (
-    <div className="auth-wrapper" style={{ animation: 'fade-in 0.3s ease-out' }}>
+    <div 
+      className={`auth-wrapper ${isPharmacy ? 'pharmacy-theme' : ''}`} 
+      style={{ 
+        animation: 'fade-in 0.3s ease-out',
+        ...(isPharmacy ? {
+          '--primary': 'hsl(160, 84%, 39%)',
+          '--primary-hover': 'hsl(160, 84%, 33%)',
+          '--primary-glow': 'rgba(16, 185, 129, 0.25)'
+        } : {})
+      }}
+    >
       {/* LEFT COLUMN: Login Form */}
       <div className="auth-left-col">
         <div className="auth-form-container">
@@ -79,21 +91,21 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
           <div className="auth-brand-row">
             <img 
               src="/kaira_logo.svg" 
-              alt="Kaira Deal Logo" 
+              alt={isPharmacy ? "Kaira Pharmacy Logo" : "Kaira Deal Logo"} 
               style={{
                 width: '36px',
                 height: '36px',
                 borderRadius: '10px',
                 objectFit: 'cover',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+                boxShadow: isPharmacy ? '0 4px 10px rgba(16,185,129,0.3)' : '0 4px 10px rgba(0,0,0,0.1)'
               }} 
             />
-            <span className="auth-brand-name">Kaira Deal</span>
+            <span className="auth-brand-name">{isPharmacy ? "Kaira Pharmacy" : "Kaira Deal"}</span>
           </div>
 
           {/* Form Header */}
           <div className="auth-form-header">
-            <h2>Login To Your Account</h2>
+            <h2>{isPharmacy ? "Login To Pharmacy Console" : "Login To Your Account"}</h2>
             <p>Welcome! Please enter your details.</p>
           </div>
 
@@ -110,9 +122,20 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
                 onChange={(e) => setLoginRole(e.target.value)}
                 disabled={loading}
               >
-                <option value="Super Admin">Super Admin</option>
-                <option value="Manager">Manager</option>
-                <option value="Agent">Agent</option>
+                {isPharmacy ? (
+                  <>
+                    <option value="Super Admin">Super Admin</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Pharmacist">Pharmacist</option>
+                    <option value="Cashier">Cashier</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Super Admin">Super Admin</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Agent">Agent</option>
+                  </>
+                )}
               </select>
             </div>
 
@@ -221,14 +244,14 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
             <div className="auth-switcher-row" style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border-color)' }}>
               <span>Are you a Client / Buyer? </span>
               <a href="#inquiry" className="auth-link" style={{ fontWeight: '700', color: 'var(--success-icon)' }} onClick={(e) => { e.preventDefault(); onBackToWebsite(); }}>
-                Browse Plots & Submit Inquiry
+                {isPharmacy ? "Browse Pharmacy Store & Products" : "Browse Plots & Submit Inquiry"}
               </a>
             </div>
           )}
 
           {/* Footer copyright list */}
           <div className="auth-footer-row">
-            <span>Kaira Deal 2026</span>
+            <span>{isPharmacy ? "Kaira Pharmacy 2026" : "Kaira Deal 2026"}</span>
             <span className="dot">•</span>
             <a href="#privacy" onClick={(e) => e.preventDefault()}>Privacy</a>
             <span className="dot">•</span>
@@ -242,9 +265,19 @@ export default function LoginScreen({ onLoginSuccess, onSwitchToSignup, onBackTo
       <div className="auth-right-col">
         <div className="auth-image-gradient-overlay" />
         <div className="auth-branding-panel">
-          <h2>Your Property, In Motion.</h2>
-          <h2>Your Reach, Expanded.</h2>
-          <p>The Complete Management Platform for Real Estate</p>
+          {isPharmacy ? (
+            <>
+              <h2>Your Pharmacy, In Control.</h2>
+              <h2>Your Stock, Optimized.</h2>
+              <p>The Complete Management Platform for Medicines & Billing</p>
+            </>
+          ) : (
+            <>
+              <h2>Your Property, In Motion.</h2>
+              <h2>Your Reach, Expanded.</h2>
+              <p>The Complete Management Platform for Real Estate</p>
+            </>
+          )}
         </div>
       </div>
       {/* -------------------------------------------------------------

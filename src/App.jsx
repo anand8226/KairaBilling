@@ -22,6 +22,7 @@ import VisitsSection from './components/VisitsSection';
 import DealsSection from './components/DealsSection';
 import CustomersSection from './components/CustomersSection';
 import ReportsSection from './components/ReportsSection';
+import PharmacyDashboard from './components/PharmacyDashboard';
 
 // Default baseline fallback data structures
 const defaultProperties = [
@@ -79,6 +80,10 @@ export default function App() {
 
   const [userAvatar, setUserAvatar] = useState(() => {
     return localStorage.getItem('propdeal_user_avatar') || '/kaira_logo.svg';
+  });
+  
+  const [currentModule, setCurrentModule] = useState(() => {
+    return localStorage.getItem('propdeal_app_module') || 'PropertyDealer';
   });
   
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -239,6 +244,11 @@ export default function App() {
     localStorage.setItem('propdeal_user_role', userObj.role);
     localStorage.setItem('propdeal_user_avatar', userObj.profileImage || '/kaira_logo.svg');
     
+    if (userObj.appModule) {
+      localStorage.setItem('propdeal_app_module', userObj.appModule);
+      setCurrentModule(userObj.appModule);
+    }
+    
     if (userObj.phoneNumber) {
       const digits = userObj.phoneNumber.replace(/\D/g, '');
       localStorage.setItem('propdeal_user_phone', digits.length === 10 ? '91' + digits : digits);
@@ -257,12 +267,14 @@ export default function App() {
     localStorage.removeItem('propdeal_user_name');
     localStorage.removeItem('propdeal_user_role');
     localStorage.removeItem('propdeal_user_avatar');
+    localStorage.removeItem('propdeal_app_module');
     
     setIsAuthenticated(false);
     setUserId('');
     setUserName('');
     setUserRole('Agent');
     setUserAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
+    setCurrentModule('PropertyDealer');
     setProperties([]);
     setLeads([]);
     setAgents([]);
@@ -699,12 +711,22 @@ export default function App() {
         <PublicPortal 
           properties={properties} 
           onLoginTrigger={() => {
+            setCurrentModule('PropertyDealer');
+            localStorage.setItem('propdeal_app_module', 'PropertyDealer');
             window.location.hash = 'login';
             setPublicViewMode('login');
           }}
           onSignupTrigger={() => {
+            setCurrentModule('PropertyDealer');
+            localStorage.setItem('propdeal_app_module', 'PropertyDealer');
             window.location.hash = 'signup';
             setPublicViewMode('signup');
+          }}
+          onPharmacyTrigger={() => {
+            setCurrentModule('Pharmacy');
+            localStorage.setItem('propdeal_app_module', 'Pharmacy');
+            window.location.hash = 'login';
+            setPublicViewMode('login');
           }}
         />
       );
@@ -714,10 +736,22 @@ export default function App() {
       <AuthScreen 
         onLoginSuccess={handleLoginSuccess} 
         initialMode={publicViewMode === 'login' ? 'login' : 'register'}
+        appModule={currentModule}
         onBackToWebsite={() => {
-          window.location.hash = 'home';
+          window.history.pushState("", document.title, window.location.pathname + window.location.search);
           setPublicViewMode('portal');
         }}
+      />
+    );
+  }
+
+  if (currentModule === 'Pharmacy') {
+    return (
+      <PharmacyDashboard 
+        userName={userName} 
+        userRole={userRole} 
+        userAvatar={userAvatar}
+        onLogout={handleLogout} 
       />
     );
   }

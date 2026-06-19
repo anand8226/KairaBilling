@@ -31,6 +31,32 @@ const propertiesFile = path.join(dataDir, 'properties.json');
 const leadsFile = path.join(dataDir, 'leads.json');
 const localUsersFile = path.join(dataDir, 'users.json');
 
+const localSuppliersFile = path.join(dataDir, 'pharmacy_suppliers.json');
+const localCustomersFile = path.join(dataDir, 'pharmacy_customers.json');
+const localDoctorsFile = path.join(dataDir, 'pharmacy_doctors.json');
+const localMedicinesFile = path.join(dataDir, 'pharmacy_medicines.json');
+const localPurchasesFile = path.join(dataDir, 'pharmacy_purchases.json');
+const localPurchaseItemsFile = path.join(dataDir, 'pharmacy_purchase_items.json');
+const localSalesFile = path.join(dataDir, 'pharmacy_sales.json');
+const localSaleItemsFile = path.join(dataDir, 'pharmacy_sale_items.json');
+
+if (!fs.existsSync(localSuppliersFile)) fs.writeFileSync(localSuppliersFile, JSON.stringify([], null, 2));
+if (!fs.existsSync(localCustomersFile)) fs.writeFileSync(localCustomersFile, JSON.stringify([], null, 2));
+if (!fs.existsSync(localDoctorsFile)) fs.writeFileSync(localDoctorsFile, JSON.stringify([], null, 2));
+if (!fs.existsSync(localMedicinesFile)) {
+  const initialMedicines = [
+    { id: 1, name: 'Paracetamol', genericName: 'Acetaminophen', brandName: 'Calpol', hsnCode: '3004', gstPercent: 12, batchNumber: 'B1092', expiryDate: '2026-12-31', mrp: 40, purchaseRate: 25, saleRate: 35, unit: 'Strip', category: 'Tablet', stock: 120 },
+    { id: 2, name: 'Amoxicillin', genericName: 'Amoxicillin Trihydrate', brandName: 'Novamox', hsnCode: '3004', gstPercent: 18, batchNumber: 'B2201', expiryDate: '2027-05-30', mrp: 95, purchaseRate: 60, saleRate: 85, unit: 'Strip', category: 'Capsule', stock: 50 },
+    { id: 3, name: 'Cetirizine', genericName: 'Cetirizine Hydrochloride', brandName: 'Alerid', hsnCode: '3004', gstPercent: 12, batchNumber: 'B1155', expiryDate: '2026-10-15', mrp: 30, purchaseRate: 15, saleRate: 26, unit: 'Strip', category: 'Tablet', stock: 200 }
+  ];
+  fs.writeFileSync(localMedicinesFile, JSON.stringify(initialMedicines, null, 2));
+}
+if (!fs.existsSync(localPurchasesFile)) fs.writeFileSync(localPurchasesFile, JSON.stringify([], null, 2));
+if (!fs.existsSync(localPurchaseItemsFile)) fs.writeFileSync(localPurchaseItemsFile, JSON.stringify([], null, 2));
+if (!fs.existsSync(localSalesFile)) fs.writeFileSync(localSalesFile, JSON.stringify([], null, 2));
+if (!fs.existsSync(localSaleItemsFile)) fs.writeFileSync(localSaleItemsFile, JSON.stringify([], null, 2));
+
+
 // Bootstrap baseline data in JSON files if they don't exist
 const initialProperties = [
   { id: 'P001', name: 'Green Villa', type: 'House', status: 'Available', price: 5000000, purchasePrice: 4000000, vendorName: 'Horizon Builders', acquisitionDate: '2026-01-10' },
@@ -94,9 +120,9 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS Users (
         UserId INT PRIMARY KEY AUTO_INCREMENT,
         FullName VARCHAR(100) NOT NULL,
-        EmailAddress VARCHAR(150) NOT NULL UNIQUE,
+        EmailAddress VARCHAR(150) NOT NULL,
         CountryCode VARCHAR(10) DEFAULT '+91',
-        PhoneNumber VARCHAR(15) NOT NULL UNIQUE,
+        PhoneNumber VARCHAR(15) NOT NULL,
         PasswordHash VARCHAR(255) NOT NULL,
         Role VARCHAR(50) DEFAULT 'Agent',
         CompanyName VARCHAR(150),
@@ -105,7 +131,10 @@ async function initDB() {
         ProfileImage MEDIUMTEXT,
         IsActive BIT DEFAULT 1,
         CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        UpdatedDate DATETIME NULL
+        UpdatedDate DATETIME NULL,
+        AppModule VARCHAR(50) DEFAULT 'PropertyDealer',
+        UNIQUE KEY uq_email_module (EmailAddress, AppModule),
+        UNIQUE KEY uq_phone_module (PhoneNumber, AppModule)
       );
     `);
     console.log('✅ MySQL Table "Users" auto-verified.');
@@ -115,13 +144,15 @@ async function initDB() {
     await dbPool.query(`
       CREATE PROCEDURE sp_Login(
         IN pPhoneNumber VARCHAR(15),
-        IN pPassword VARCHAR(255)
+        IN pPassword VARCHAR(255),
+        IN pAppModule VARCHAR(50)
       )
       BEGIN
         SELECT *
         FROM Users
         WHERE PhoneNumber = pPhoneNumber
         AND PasswordHash = pPassword
+        AND AppModule = pAppModule
         LIMIT 1;
       END;
     `);
@@ -340,6 +371,152 @@ async function initDB() {
       console.error('Failed to create sp_GetDetailedPayments:', e.message);
     }
 
+    // 6. Provision new tables for the Pharmacy module
+    try {
+      await dbPool.query("ALTER TABLE Users ADD COLUMN AppModule VARCHAR(50) DEFAULT 'PropertyDealer';");
+    } catch (e) {}
+
+    try {
+      await dbPool.query("ALTER TABLE Users DROP INDEX EmailAddress;");
+    } catch (e) {}
+    try {
+      await dbPool.query("ALTER TABLE Users DROP INDEX PhoneNumber;");
+    } catch (e) {}
+    try {
+      await dbPool.query("ALTER TABLE Users ADD UNIQUE KEY uq_email_module (EmailAddress, AppModule);");
+    } catch (e) {}
+    try {
+      await dbPool.query("ALTER TABLE Users ADD UNIQUE KEY uq_phone_module (PhoneNumber, AppModule);");
+    } catch (e) {}
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_Suppliers (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(150) NOT NULL,
+        gstNo VARCHAR(20) NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        contact VARCHAR(15) NOT NULL
+      );
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_Customers (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(150) NOT NULL,
+        mobile VARCHAR(15) NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        doctorRef VARCHAR(150)
+      );
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_Doctors (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(150) NOT NULL,
+        regNo VARCHAR(50) NOT NULL,
+        contact VARCHAR(15) NOT NULL
+      );
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_Medicines (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(150) NOT NULL,
+        genericName VARCHAR(150) NOT NULL,
+        brandName VARCHAR(150) NOT NULL,
+        hsnCode VARCHAR(20) NOT NULL,
+        gstPercent DECIMAL(5,2) NOT NULL,
+        batchNumber VARCHAR(50) NOT NULL,
+        expiryDate DATE NOT NULL,
+        mrp DECIMAL(10,2) NOT NULL,
+        purchaseRate DECIMAL(10,2) NOT NULL,
+        saleRate DECIMAL(10,2) NOT NULL,
+        unit VARCHAR(50) NOT NULL,
+        category VARCHAR(100) NOT NULL,
+        stock INT NOT NULL DEFAULT 0
+      );
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_Purchases (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        supplierId INT NOT NULL,
+        supplierName VARCHAR(150) NOT NULL,
+        invoiceNumber VARCHAR(100) NOT NULL,
+        invoiceDate DATE NOT NULL,
+        gstTotal DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        discountTotal DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        grandTotal DECIMAL(10,2) NOT NULL,
+        createdDate DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_PurchaseItems (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        purchaseId INT NOT NULL,
+        medicineId INT NOT NULL,
+        medicineName VARCHAR(150) NOT NULL,
+        batchNumber VARCHAR(50) NOT NULL,
+        expiryDate DATE NOT NULL,
+        quantity INT NOT NULL,
+        freeQuantity INT NOT NULL DEFAULT 0,
+        purchaseRate DECIMAL(10,2) NOT NULL,
+        gstPercent DECIMAL(5,2) NOT NULL,
+        discountPercent DECIMAL(5,2) NOT NULL
+      );
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_Sales (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        customerName VARCHAR(150) NOT NULL,
+        customerMobile VARCHAR(15) NOT NULL,
+        doctorName VARCHAR(150),
+        subTotal DECIMAL(10,2) NOT NULL,
+        discountAmount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        gstAmount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        roundOff DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+        grandTotal DECIMAL(10,2) NOT NULL,
+        paymentMode VARCHAR(50) DEFAULT 'Cash',
+        saleDate DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await dbPool.query(`
+      CREATE TABLE IF NOT EXISTS Pharmacy_SaleItems (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        saleId INT NOT NULL,
+        medicineId INT NOT NULL,
+        medicineName VARCHAR(150) NOT NULL,
+        batchNumber VARCHAR(50) NOT NULL,
+        quantity INT NOT NULL,
+        saleRate DECIMAL(10,2) NOT NULL,
+        gstPercent DECIMAL(5,2) NOT NULL,
+        discountPercent DECIMAL(5,2) NOT NULL
+      );
+    `);
+
+    // Bootstrap some baseline medicines if empty
+    const [rowsMed] = await dbPool.query('SELECT COUNT(*) as count FROM Pharmacy_Medicines');
+    if (rowsMed[0].count === 0) {
+      const defaultMeds = [
+        ['Paracetamol', 'Acetaminophen', 'Calpol', '3004', 12.00, 'B1092', '2026-12-31', 40.00, 25.00, 35.00, 'Strip', 'Tablet', 120],
+        ['Amoxicillin', 'Amoxicillin Trihydrate', 'Novamox', '3004', 18.00, 'B2201', '2027-05-30', 95.00, 60.00, 85.00, 'Strip', 'Capsule', 50],
+        ['Cetirizine', 'Cetirizine Hydrochloride', 'Alerid', '3004', 12.00, 'B1155', '2026-10-15', 30.00, 15.00, 26.00, 'Strip', 'Tablet', 200],
+        ['Ibuprofen', 'Ibuprofen', 'Combiflam', '3004', 12.00, 'B9041', '2026-08-20', 25.00, 12.00, 22.00, 'Strip', 'Tablet', 150]
+      ];
+      for (const m of defaultMeds) {
+        await dbPool.query(`
+          INSERT INTO Pharmacy_Medicines 
+          (name, genericName, brandName, hsnCode, gstPercent, batchNumber, expiryDate, mrp, purchaseRate, saleRate, unit, category, stock) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+          m
+        );
+      }
+      console.log('✅ MySQL Table "Pharmacy_Medicines" bootstrapped.');
+    }
+
     // Bootstrap MySQL baseline items if empty
     const [rowsProps] = await dbPool.query('SELECT COUNT(*) as count FROM Properties');
     if (rowsProps[0].count === 0) {
@@ -391,7 +568,8 @@ app.post('/api/auth/register', async (req, res) => {
     role,
     companyName,
     city,
-    state
+    state,
+    appModule
   } = req.body;
 
   if (!fullName || !emailAddress || !phoneNumber || !password) {
@@ -399,7 +577,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 
   try {
-    // Hash password using SHA-256 to allow direct comparison in Stored Procedure sp_Login!
     const passwordHash = hashPasswordSHA256(password);
     const code = countryCode || '+91';
     const userRole = role || 'Agent';
@@ -407,23 +584,24 @@ app.post('/api/auth/register', async (req, res) => {
     const userCity = city || null;
     const userState = state || null;
     const profileImage = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop";
+    const targetModule = appModule || 'PropertyDealer';
 
     if (useMySQL) {
-      // Check if user already exists
+      // Check if user already exists in the same module
       const [existing] = await dbPool.query(
-        'SELECT * FROM Users WHERE EmailAddress = ? OR PhoneNumber = ?', 
-        [emailAddress, phoneNumber]
+        'SELECT * FROM Users WHERE (EmailAddress = ? OR PhoneNumber = ?) AND AppModule = ?', 
+        [emailAddress, phoneNumber, targetModule]
       );
       if (existing.length > 0) {
-        return res.status(400).json({ error: 'A user with this email or phone number already exists.' });
+        return res.status(400).json({ error: 'A user with this email or phone number already exists in this module.' });
       }
 
       // Insert user
       const [result] = await dbPool.query(
         `INSERT INTO Users 
-        (FullName, EmailAddress, CountryCode, PhoneNumber, PasswordHash, Role, CompanyName, City, State, ProfileImage) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [fullName, emailAddress, code, phoneNumber, passwordHash, userRole, company, userCity, userState, profileImage]
+        (FullName, EmailAddress, CountryCode, PhoneNumber, PasswordHash, Role, CompanyName, City, State, ProfileImage, AppModule) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [fullName, emailAddress, code, phoneNumber, passwordHash, userRole, company, userCity, userState, profileImage, targetModule]
       );
 
       return res.status(201).json({
@@ -438,15 +616,16 @@ app.post('/api/auth/register', async (req, res) => {
           companyName: company,
           city: userCity,
           state: userState,
-          profileImage: profileImage
+          profileImage: profileImage,
+          appModule: targetModule
         }
       });
     } else {
       // Local file registry mode
       const users = readJSON(localUsersFile);
-      const exists = users.find(u => u.emailAddress === emailAddress || u.phoneNumber === phoneNumber);
+      const exists = users.find(u => (u.emailAddress === emailAddress || u.phoneNumber === phoneNumber) && u.appModule === targetModule);
       if (exists) {
-        return res.status(400).json({ error: 'A user with this email or phone number already exists.' });
+        return res.status(400).json({ error: 'A user with this email or phone number already exists in this module.' });
       }
 
       const newUser = {
@@ -460,7 +639,8 @@ app.post('/api/auth/register', async (req, res) => {
         companyName: company,
         city: userCity,
         state: userState,
-        profileImage
+        profileImage,
+        appModule: targetModule
       };
       users.push(newUser);
       writeJSON(localUsersFile, users);
@@ -477,7 +657,8 @@ app.post('/api/auth/register', async (req, res) => {
           companyName: company,
           city: userCity,
           state: userState,
-          profileImage: newUser.profileImage
+          profileImage: newUser.profileImage,
+          appModule: targetModule
         }
       });
     }
@@ -489,7 +670,7 @@ app.post('/api/auth/register', async (req, res) => {
 
 // 2. Auth: User Login Endpoint executing MySQL Stored Procedure "sp_Login"!
 app.post('/api/auth/login', async (req, res) => {
-  const { countryCode, phoneNumber, password, role } = req.body;
+  const { countryCode, phoneNumber, password, role, appModule } = req.body;
 
   if (!phoneNumber || !password) {
     return res.status(400).json({ error: 'Phone number and password are required' });
@@ -507,10 +688,11 @@ app.post('/api/auth/login', async (req, res) => {
     // Hash input password with SHA-256 to match database stored values
     const passwordHash = hashPasswordSHA256(password);
     let user = null;
+    const targetModule = appModule || 'PropertyDealer';
 
     if (useMySQL) {
       // Execute the MySQL Stored Procedure!
-      const [result] = await dbPool.query('CALL sp_Login(?, ?)', [phoneNumber, passwordHash]);
+      const [result] = await dbPool.query('CALL sp_Login(?, ?, ?)', [phoneNumber, passwordHash, targetModule]);
       const rows = result[0]; // mysql2 returns procedure datasets nested inside the first index
       
       if (rows && rows.length > 0) {
@@ -519,11 +701,19 @@ app.post('/api/auth/login', async (req, res) => {
     } else {
       // Local file simulation backup
       const users = readJSON(localUsersFile);
-      user = users.find(u => u.phoneNumber === phoneNumber && u.passwordHash === passwordHash);
+      user = users.find(u => u.phoneNumber === phoneNumber && u.passwordHash === passwordHash && (u.appModule || 'PropertyDealer') === targetModule);
     }
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid phone number or password' });
+    }
+
+    // Verify app module matching
+    const dbAppModule = user.AppModule || user.appModule || 'PropertyDealer';
+    if (dbAppModule !== targetModule) {
+      return res.status(400).json({ 
+        error: `Account mismatch. This account is registered for "${dbAppModule}", but you are trying to log into "${targetModule}".` 
+      });
     }
 
     // Enforce strict Role verification matching their registered signup details
@@ -546,7 +736,8 @@ app.post('/api/auth/login', async (req, res) => {
         companyName: user.CompanyName || user.companyName || '',
         city: user.City || user.city || '',
         state: user.State || user.state || '',
-        profileImage: user.ProfileImage || user.profileImage || ''
+        profileImage: user.ProfileImage || user.profileImage || '',
+        appModule: dbAppModule
       }
     });
   } catch (error) {
@@ -1268,6 +1459,426 @@ app.post('/api/auth/reset-password', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Password update error.' });
+  }
+});
+
+// =============================================================
+// KAIRA PHARMACY MANAGEMENT SOFTWARE REST API ENDPOINTS
+// =============================================================
+
+// --- Pharmacy Suppliers API ---
+app.get('/api/pharmacy/suppliers', async (req, res) => {
+  try {
+    if (useMySQL) {
+      const [rows] = await dbPool.query('SELECT * FROM Pharmacy_Suppliers');
+      res.json(rows);
+    } else {
+      res.json(readJSON(localSuppliersFile));
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/pharmacy/suppliers', async (req, res) => {
+  const { name, gstNo, address, contact } = req.body;
+  if (!name || !gstNo || !address || !contact) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  try {
+    if (useMySQL) {
+      const [result] = await dbPool.query(
+        'INSERT INTO Pharmacy_Suppliers (name, gstNo, address, contact) VALUES (?, ?, ?, ?)',
+        [name, gstNo, address, contact]
+      );
+      res.status(201).json({ id: result.insertId, name, gstNo, address, contact });
+    } else {
+      const list = readJSON(localSuppliersFile);
+      const newObj = { id: list.length + 1, name, gstNo, address, contact };
+      list.push(newObj);
+      writeJSON(localSuppliersFile, list);
+      res.status(201).json(newObj);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Pharmacy Customers API ---
+app.get('/api/pharmacy/customers', async (req, res) => {
+  try {
+    if (useMySQL) {
+      const [rows] = await dbPool.query('SELECT * FROM Pharmacy_Customers');
+      res.json(rows);
+    } else {
+      res.json(readJSON(localCustomersFile));
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/pharmacy/customers', async (req, res) => {
+  const { name, mobile, address, doctorRef } = req.body;
+  if (!name || !mobile || !address) {
+    return res.status(400).json({ error: 'Name, mobile, and address are required' });
+  }
+  try {
+    if (useMySQL) {
+      const [result] = await dbPool.query(
+        'INSERT INTO Pharmacy_Customers (name, mobile, address, doctorRef) VALUES (?, ?, ?, ?)',
+        [name, mobile, address, doctorRef || '']
+      );
+      res.status(201).json({ id: result.insertId, name, mobile, address, doctorRef });
+    } else {
+      const list = readJSON(localCustomersFile);
+      const newObj = { id: list.length + 1, name, mobile, address, doctorRef };
+      list.push(newObj);
+      writeJSON(localCustomersFile, list);
+      res.status(201).json(newObj);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Pharmacy Doctors API ---
+app.get('/api/pharmacy/doctors', async (req, res) => {
+  try {
+    if (useMySQL) {
+      const [rows] = await dbPool.query('SELECT * FROM Pharmacy_Doctors');
+      res.json(rows);
+    } else {
+      res.json(readJSON(localDoctorsFile));
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/pharmacy/doctors', async (req, res) => {
+  const { name, regNo, contact } = req.body;
+  if (!name || !regNo || !contact) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  try {
+    if (useMySQL) {
+      const [result] = await dbPool.query(
+        'INSERT INTO Pharmacy_Doctors (name, regNo, contact) VALUES (?, ?, ?)',
+        [name, regNo, contact]
+      );
+      res.status(201).json({ id: result.insertId, name, regNo, contact });
+    } else {
+      const list = readJSON(localDoctorsFile);
+      const newObj = { id: list.length + 1, name, regNo, contact };
+      list.push(newObj);
+      writeJSON(localDoctorsFile, list);
+      res.status(201).json(newObj);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Pharmacy Medicines API ---
+app.get('/api/pharmacy/medicines', async (req, res) => {
+  try {
+    if (useMySQL) {
+      const [rows] = await dbPool.query('SELECT * FROM Pharmacy_Medicines');
+      res.json(rows);
+    } else {
+      res.json(readJSON(localMedicinesFile));
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/pharmacy/medicines', async (req, res) => {
+  const { name, genericName, brandName, hsnCode, gstPercent, batchNumber, expiryDate, mrp, purchaseRate, saleRate, unit, category, stock } = req.body;
+  if (!name || !genericName || !brandName || !hsnCode || !gstPercent || !batchNumber || !expiryDate || !mrp || !purchaseRate || !saleRate || !unit || !category) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  try {
+    const qty = stock ? parseInt(stock) : 0;
+    if (useMySQL) {
+      const [result] = await dbPool.query(
+        `INSERT INTO Pharmacy_Medicines 
+        (name, genericName, brandName, hsnCode, gstPercent, batchNumber, expiryDate, mrp, purchaseRate, saleRate, unit, category, stock) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, genericName, brandName, hsnCode, parseFloat(gstPercent), batchNumber, expiryDate, parseFloat(mrp), parseFloat(purchaseRate), parseFloat(saleRate), unit, category, qty]
+      );
+      res.status(201).json({ id: result.insertId, name, genericName, brandName, hsnCode, gstPercent, batchNumber, expiryDate, mrp, purchaseRate, saleRate, unit, category, stock: qty });
+    } else {
+      const list = readJSON(localMedicinesFile);
+      const newObj = { id: list.length + 1, name, genericName, brandName, hsnCode, gstPercent: parseFloat(gstPercent), batchNumber, expiryDate, mrp: parseFloat(mrp), purchaseRate: parseFloat(purchaseRate), saleRate: parseFloat(saleRate), unit, category, stock: qty };
+      list.push(newObj);
+      writeJSON(localMedicinesFile, list);
+      res.status(201).json(newObj);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/pharmacy/medicines/:id', async (req, res) => {
+  const { id } = req.params;
+  const { stock, saleRate, mrp, expiryDate, batchNumber } = req.body;
+  try {
+    if (useMySQL) {
+      await dbPool.query(
+        'UPDATE Pharmacy_Medicines SET stock = COALESCE(?, stock), saleRate = COALESCE(?, saleRate), mrp = COALESCE(?, mrp), expiryDate = COALESCE(?, expiryDate), batchNumber = COALESCE(?, batchNumber) WHERE id = ?',
+        [stock, saleRate, mrp, expiryDate, batchNumber, id]
+      );
+      res.json({ success: true });
+    } else {
+      const list = readJSON(localMedicinesFile);
+      const updated = list.map(m => {
+        if (String(m.id) === String(id)) {
+          return {
+            ...m,
+            stock: stock !== undefined ? parseInt(stock) : m.stock,
+            saleRate: saleRate !== undefined ? parseFloat(saleRate) : m.saleRate,
+            mrp: mrp !== undefined ? parseFloat(mrp) : m.mrp,
+            expiryDate: expiryDate || m.expiryDate,
+            batchNumber: batchNumber || m.batchNumber
+          };
+        }
+        return m;
+      });
+      writeJSON(localMedicinesFile, updated);
+      res.json({ success: true });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/pharmacy/medicines/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (useMySQL) {
+      await dbPool.query('DELETE FROM Pharmacy_Medicines WHERE id = ?', [id]);
+      res.json({ success: true });
+    } else {
+      const list = readJSON(localMedicinesFile);
+      const filtered = list.filter(m => String(m.id) !== String(id));
+      writeJSON(localMedicinesFile, filtered);
+      res.json({ success: true });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Pharmacy Purchases API ---
+app.post('/api/pharmacy/purchases', async (req, res) => {
+  const { supplierId, supplierName, invoiceNumber, invoiceDate, gstTotal, discountTotal, grandTotal, items } = req.body;
+  if (!supplierId || !invoiceNumber || !grandTotal || !items || !items.length) {
+    return res.status(400).json({ error: 'Incomplete purchase parameters' });
+  }
+  try {
+    if (useMySQL) {
+      // 1. Insert Purchase Header
+      const [result] = await dbPool.query(
+        'INSERT INTO Pharmacy_Purchases (supplierId, supplierName, invoiceNumber, invoiceDate, gstTotal, discountTotal, grandTotal) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [supplierId, supplierName, invoiceNumber, invoiceDate, gstTotal || 0, discountTotal || 0, grandTotal]
+      );
+      const purchaseId = result.insertId;
+
+      // 2. Insert Items & update stock
+      for (const item of items) {
+        await dbPool.query(
+          'INSERT INTO Pharmacy_PurchaseItems (purchaseId, medicineId, medicineName, batchNumber, expiryDate, quantity, freeQuantity, purchaseRate, gstPercent, discountPercent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [purchaseId, item.medicineId, item.medicineName, item.batchNumber, item.expiryDate, item.quantity, item.freeQuantity || 0, item.purchaseRate, item.gstPercent || 0, item.discountPercent || 0]
+        );
+
+        // Update medicine stock, batch, expiry
+        await dbPool.query(
+          'UPDATE Pharmacy_Medicines SET stock = stock + ?, batchNumber = ?, expiryDate = ?, purchaseRate = ?, saleRate = ? WHERE id = ?',
+          [parseInt(item.quantity) + parseInt(item.freeQuantity || 0), item.batchNumber, item.expiryDate, item.purchaseRate, item.saleRate || item.purchaseRate, item.medicineId]
+        );
+      }
+      res.status(201).json({ success: true, purchaseId });
+    } else {
+      // Local fallback
+      const purchases = readJSON(localPurchasesFile);
+      const purchaseId = purchases.length + 1;
+      const newPurchase = { id: purchaseId, supplierId, supplierName, invoiceNumber, invoiceDate, gstTotal, discountTotal, grandTotal, date: new Date().toISOString() };
+      purchases.push(newPurchase);
+      writeJSON(localPurchasesFile, purchases);
+
+      const purchaseItems = readJSON(localPurchaseItemsFile);
+      for (const item of items) {
+        purchaseItems.push({ id: purchaseItems.length + 1, purchaseId, ...item });
+      }
+      writeJSON(localPurchaseItemsFile, purchaseItems);
+
+      const medicines = readJSON(localMedicinesFile);
+      const updatedMeds = medicines.map(m => {
+        const item = items.find(it => String(it.medicineId) === String(m.id));
+        if (item) {
+          return {
+            ...m,
+            stock: m.stock + parseInt(item.quantity) + parseInt(item.freeQuantity || 0),
+            batchNumber: item.batchNumber,
+            expiryDate: item.expiryDate,
+            purchaseRate: parseFloat(item.purchaseRate),
+            saleRate: parseFloat(item.saleRate || item.purchaseRate)
+          };
+        }
+        return m;
+      });
+      writeJSON(localMedicinesFile, updatedMeds);
+      res.status(201).json({ success: true, purchaseId });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Pharmacy Sales API ---
+app.get('/api/pharmacy/sales', async (req, res) => {
+  try {
+    if (useMySQL) {
+      const [rows] = await dbPool.query('SELECT * FROM Pharmacy_Sales ORDER BY id DESC');
+      res.json(rows);
+    } else {
+      res.json(readJSON(localSalesFile));
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/pharmacy/sales', async (req, res) => {
+  const { customerName, customerMobile, doctorName, subTotal, discountAmount, gstAmount, roundOff, grandTotal, paymentMode, items } = req.body;
+  if (!customerName || !grandTotal || !items || !items.length) {
+    return res.status(400).json({ error: 'Incomplete sales parameters' });
+  }
+  try {
+    if (useMySQL) {
+      // 1. Insert Sales Header
+      const [result] = await dbPool.query(
+        'INSERT INTO Pharmacy_Sales (customerName, customerMobile, doctorName, subTotal, discountAmount, gstAmount, roundOff, grandTotal, paymentMode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [customerName, customerMobile || '', doctorName || '', subTotal, discountAmount || 0, gstAmount || 0, roundOff || 0, grandTotal, paymentMode || 'Cash']
+      );
+      const saleId = result.insertId;
+
+      // 2. Insert Items & decrement stock
+      for (const item of items) {
+        await dbPool.query(
+          'INSERT INTO Pharmacy_SaleItems (saleId, medicineId, medicineName, batchNumber, quantity, saleRate, gstPercent, discountPercent) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [saleId, item.medicineId, item.medicineName, item.batchNumber, item.quantity, item.saleRate, item.gstPercent || 0, item.discountPercent || 0]
+        );
+
+        await dbPool.query(
+          'UPDATE Pharmacy_Medicines SET stock = GREATEST(0, stock - ?) WHERE id = ?',
+          [parseInt(item.quantity), item.medicineId]
+        );
+      }
+      res.status(201).json({ success: true, saleId });
+    } else {
+      // Local fallback
+      const sales = readJSON(localSalesFile);
+      const saleId = sales.length + 1;
+      const newSale = { id: saleId, customerName, customerMobile, doctorName, subTotal, discountAmount, gstAmount, roundOff, grandTotal, paymentMode, date: new Date().toISOString() };
+      sales.push(newSale);
+      writeJSON(localSalesFile, sales);
+
+      const saleItems = readJSON(localSaleItemsFile);
+      for (const item of items) {
+        saleItems.push({ id: saleItems.length + 1, saleId, ...item });
+      }
+      writeJSON(localSaleItemsFile, saleItems);
+
+      const medicines = readJSON(localMedicinesFile);
+      const updatedMeds = medicines.map(m => {
+        const item = items.find(it => String(it.medicineId) === String(m.id));
+        if (item) {
+          return {
+            ...m,
+            stock: Math.max(0, m.stock - parseInt(item.quantity))
+          };
+        }
+        return m;
+      });
+      writeJSON(localMedicinesFile, updatedMeds);
+      res.status(201).json({ success: true, saleId });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Pharmacy Reports and Dashboard stats ---
+app.get('/api/pharmacy/reports/dashboard', async (req, res) => {
+  try {
+    let stats = {
+      todaySales: 0,
+      todayPurchase: 0,
+      totalStockValue: 0,
+      expiryMedicinesCount: 0,
+      lowStockCount: 0,
+      outstandingAmount: 0,
+      monthlySales: [0, 0, 0, 0, 0, 0],
+      topMedicines: []
+    };
+
+    if (useMySQL) {
+      // Today's Sales
+      const [salesToday] = await dbPool.query("SELECT COALESCE(SUM(grandTotal), 0) as total FROM Pharmacy_Sales WHERE DATE(saleDate) = CURDATE()");
+      stats.todaySales = parseFloat(salesToday[0].total);
+
+      // Today's Purchase
+      const [purchToday] = await dbPool.query("SELECT COALESCE(SUM(grandTotal), 0) as total FROM Pharmacy_Purchases WHERE DATE(invoiceDate) = CURDATE()");
+      stats.todayPurchase = parseFloat(purchToday[0].total);
+
+      // Total Stock Value (MRP * stock)
+      const [stockVal] = await dbPool.query("SELECT COALESCE(SUM(mrp * stock), 0) as total FROM Pharmacy_Medicines");
+      stats.totalStockValue = parseFloat(stockVal[0].total);
+
+      // Expiry medicines count (already expired or expiring in 90 days)
+      const [expiryCount] = await dbPool.query("SELECT COUNT(*) as count FROM Pharmacy_Medicines WHERE expiryDate <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)");
+      stats.expiryMedicinesCount = expiryCount[0].count;
+
+      // Low stock medicines count (stock <= 10)
+      const [lowStock] = await dbPool.query("SELECT COUNT(*) as count FROM Pharmacy_Medicines WHERE stock <= 10");
+      stats.lowStockCount = lowStock[0].count;
+
+      // Outstanding supplier balances (simulated total or summation of purchases minus paid amount)
+      const [outstanding] = await dbPool.query("SELECT COALESCE(SUM(grandTotal), 0) * 0.15 as total FROM Pharmacy_Purchases");
+      stats.outstandingAmount = parseFloat(outstanding[0].total); // Simulated unpaid outstanding ratio
+
+      // Top medicines count
+      const [topMeds] = await dbPool.query(`
+        SELECT medicineName as name, SUM(quantity) as soldQty 
+        FROM Pharmacy_SaleItems 
+        GROUP BY medicineName 
+        ORDER BY soldQty DESC 
+        LIMIT 5
+      `);
+      stats.topMedicines = topMeds;
+    } else {
+      // Local JSON stats
+      const sales = readJSON(localSalesFile);
+      const purchases = readJSON(localPurchasesFile);
+      const medicines = readJSON(localMedicinesFile);
+
+      stats.todaySales = sales.reduce((sum, s) => sum + parseFloat(s.grandTotal || 0), 0);
+      stats.todayPurchase = purchases.reduce((sum, p) => sum + parseFloat(p.grandTotal || 0), 0);
+      stats.totalStockValue = medicines.reduce((sum, m) => sum + (parseFloat(m.mrp || 0) * parseInt(m.stock || 0)), 0);
+      
+      const ninetyDaysFromNow = new Date();
+      ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+      stats.expiryMedicinesCount = medicines.filter(m => new Date(m.expiryDate) <= ninetyDaysFromNow).length;
+      stats.lowStockCount = medicines.filter(m => m.stock <= 10).length;
+      stats.outstandingAmount = stats.todayPurchase * 0.15;
+    }
+
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
