@@ -516,6 +516,14 @@ a {
   margin-bottom: 24px;
 }
 
+.grid-2-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+
 .stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -1235,6 +1243,9 @@ a {
   .categories-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+  .grid-2-cols {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -1309,6 +1320,10 @@ a {
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .grid-2-cols {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1321,6 +1336,10 @@ a {
   }
   
   .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2-cols {
     grid-template-columns: 1fr;
   }
   
@@ -2935,6 +2954,526 @@ a {
   }
 }
 
+/* =============================================================
+   PUBLIC PORTAL / HOME PAGE STYLES
+   ============================================================= */
 
+/* Fade-in Animation - used by all portal views */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
+/* SaaS Navigation Bar */
+.saas-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 40px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+}
 
+.saas-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saas-nav-link {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.saas-nav-link:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.saas-nav-link.active {
+  color: var(--primary);
+  font-weight: 700;
+  background: var(--primary-light);
+}
+
+/* Hero Section Glow Effects */
+.saas-hero-glow-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.saas-glow-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.12;
+}
+
+.saas-glow-circle.primary {
+  width: 400px;
+  height: 400px;
+  background: var(--primary);
+  top: -100px;
+  left: -100px;
+  animation: glow-float 8s ease-in-out infinite alternate;
+}
+
+.saas-glow-circle.purple {
+  width: 350px;
+  height: 350px;
+  background: hsl(271, 81%, 55%);
+  bottom: -80px;
+  right: -60px;
+  animation: glow-float 10s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes glow-float {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(30px, 20px) scale(1.1);
+  }
+}
+
+/* Hero Badge Pill */
+.saas-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--primary-light);
+  border: 1px solid rgba(30, 111, 253, 0.15);
+}
+
+/* Module Preview Tab Buttons */
+.saas-module-tab-btn {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.saas-module-tab-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.saas-module-tab-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(30, 111, 253, 0.25);
+}
+
+/* Plot Showcase Filter Pills */
+.filter-pill-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 30px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.filter-pill-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.filter-pill-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Public Property Showcase Cards */
+.public-property-card {
+  transition: var(--transition);
+}
+
+.public-property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+/* Sign-in Button */
+.btn-signin {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.btn-signin:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* Portal main content relative positioning for glow effects */
+.main-portal-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive portal adjustments */
+@media (max-width: 768px) {
+  .saas-navbar {
+    padding: 12px 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .saas-nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    gap: 4px;
+  }
+
+  .saas-nav-link {
+    font-size: 12px;
+    padding: 6px 12px;
+    white-space: nowrap;
+  }
+}
+
+/* =============================================================
+   AUTH / LOGIN / REGISTER PAGE STYLES
+   ============================================================= */
+
+.auth-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.auth-left-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: var(--bg-card);
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Right column - Background image panel */
+.auth-right-col {
+  position: relative;
+  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 60px 40px;
+  overflow: hidden;
+}
+
+/* Pharmacy theme - show pharmacy/medical image */
+.auth-wrapper.pharmacy-theme .auth-right-col {
+  background-image: url('https://images.unsplash.com/photo-1587854692152-cbe660dbde88?q=80&w=1200&auto=format&fit=crop');
+}
+
+/* Gradient overlay on right image */
+.auth-image-gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.75) 100%);
+  z-index: 1;
+}
+
+/* Branding text panel on top of image */
+.auth-branding-panel {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+}
+
+.auth-branding-panel h2 {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.auth-branding-panel p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+/* Auth Brand Row */
+.auth-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  margin-top: 18px;
+}
+
+.auth-brand-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Auth Form Header */
+.auth-form-header {
+  margin-bottom: 28px;
+}
+
+.auth-form-header h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.auth-form-header p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Auth Form Group */
+.auth-form-group {
+  margin-bottom: 18px;
+}
+
+.auth-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+/* Auth Form Inputs */
+.auth-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-main);
+  transition: var(--transition);
+}
+
+.auth-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 111, 253, 0.1);
+}
+
+.auth-input::placeholder {
+  color: var(--text-light);
+}
+
+.auth-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 111, 253, 0.1);
+}
+
+/* Password Input Wrapper */
+.auth-password-wrapper {
+  position: relative;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.auth-password-toggle:hover {
+  color: var(--primary);
+}
+
+/* Auth Submit Button */
+.auth-submit-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(30, 111, 253, 0.25);
+}
+
+.auth-submit-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(30, 111, 253, 0.35);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Pharmacy theme submit button */
+.pharmacy-theme .auth-submit-btn {
+  background: hsl(160, 84%, 39%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.pharmacy-theme .auth-submit-btn:hover {
+  background: hsl(160, 84%, 33%);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+/* Auth Link */
+.auth-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.pharmacy-theme .auth-link {
+  color: hsl(160, 84%, 39%);
+}
+
+/* Remember me / Forgot row */
+.auth-options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.auth-remember-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* Switch to login/register row */
+.auth-switcher-row {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+/* Phone input with country code */
+.auth-phone-row {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-phone-row select {
+  width: 80px;
+  padding: 10px 8px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+.auth-phone-row input {
+  flex: 1;
+}
+
+/* Responsive auth */
+@media (max-width: 768px) {
+  .auth-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-right-col {
+    display: none;
+  }
+
+  .auth-left-col {
+    padding: 30px 20px;
+  }
+}
