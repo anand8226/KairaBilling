@@ -44,7 +44,7 @@ export const AppState = {
   userName: localStorage.getItem('propdeal_user_name') || '',
   userRole: localStorage.getItem('propdeal_user_role') || 'Agent',
   userId: localStorage.getItem('propdeal_user_id') || '',
-  userAvatar: localStorage.getItem('propdeal_user_avatar') || '/kaira_logo.svg',
+  userAvatar: localStorage.getItem('propdeal_user_avatar') || 'kaira_logo.svg',
   currentModule: localStorage.getItem('propdeal_app_module') || 'PropertyDealer',
   activeTab: 'dashboard',
   searchQuery: '',

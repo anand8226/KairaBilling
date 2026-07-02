@@ -15,6 +15,10 @@ function createWindow() {
     title: "Kaira Deal Desktop ERP Suite",
   });
 
+  // Remove default File/Edit/View menu
+  mainWindow.setMenuBarVisibility(false);
+  mainWindow.setMenu(null);
+
   // Check if we are running in development or packaged production
   const isDev = !app.isPackaged;
 

@@ -1,7 +1,9 @@
 {
   "name": "kairabilling",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Kaira Deal ERP & Pharmacy Billing Desktop App Suite",
+  "author": "Kaira",
   "type": "module",
   "main": "electron.cjs",
   "scripts": {
@@ -9,13 +11,44 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron:start": "electron .",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\""
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder --win && node -e \"const fs=require('fs'); if(!fs.existsSync('build-output')) fs.mkdirSync('build-output'); fs.copyFileSync('node_modules/.cache/dist-electron/KairaBilling Setup 1.0.0.exe', 'build-output/KairaBilling Setup 1.0.0.exe')\""
   },
-  "dependencies": {},
   "devDependencies": {
     "concurrently": "^10.0.3",
     "electron": "^42.4.0",
+    "electron-builder": "^26.15.3",
     "vite": "^8.0.12",
     "wait-on": "^9.0.10"
+  },
+  "build": {
+    "appId": "com.kairabilling.app",
+    "productName": "KairaBilling",
+    "directories": {
+      "output": "node_modules/.cache/dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron.cjs",
+      "preload.cjs",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Kaira Billing"
+    }
   }
 }
