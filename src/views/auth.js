@@ -39,7 +39,7 @@ export function renderAuth(state) {
 
 function renderLoginView(isPharmacy) {
   return `
-    <div class="auth-wrapper ${isPharmacy ? 'pharmacy-theme' : ''}" style="animation: fade-in 0.3s ease-out; ${isPharmacy ? '--primary: hsl(160, 84%, 39%); --primary-hover: hsl(160, 84%, 33%); --primary-glow: rgba(16, 185, 129, 0.25);' : ''}">
+    <div class="auth-wrapper ${isPharmacy ? 'pharmacy-theme' : ''}" style="${isPharmacy ? '--primary: hsl(160, 84%, 39%); --primary-hover: hsl(160, 84%, 33%); --primary-glow: rgba(16, 185, 129, 0.25);' : ''}">
       <!-- LEFT COLUMN: Login Form -->
       <div class="auth-left-col">
         <div class="auth-form-container">
@@ -50,7 +50,7 @@ function renderLoginView(isPharmacy) {
 
           <!-- Logo Section -->
           <div class="auth-brand-row">
-            <img src="/kaira_logo.svg" alt="Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover;" />
+            <img src="kaira_logo.svg" alt="Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover;" />
             <span class="auth-brand-name">${isPharmacy ? "Kaira Pharmacy" : "Kaira Deal"}</span>
           </div>
 
@@ -160,7 +160,7 @@ function renderLoginView(isPharmacy) {
 
 function renderSignupView(isPharmacy) {
   return `
-    <div class="auth-wrapper ${isPharmacy ? 'pharmacy-theme' : ''}" style="animation: fade-in 0.3s ease-out; ${isPharmacy ? '--primary: hsl(160, 84%, 39%); --primary-hover: hsl(160, 84%, 33%); --primary-glow: rgba(16, 185, 129, 0.25);' : ''}">
+    <div class="auth-wrapper ${isPharmacy ? 'pharmacy-theme' : ''}" style="${isPharmacy ? '--primary: hsl(160, 84%, 39%); --primary-hover: hsl(160, 84%, 33%); --primary-glow: rgba(16, 185, 129, 0.25);' : ''}">
       <!-- LEFT COLUMN: Signup Form -->
       <div class="auth-left-col">
         <div class="auth-form-container" style="max-width: 460px;">
@@ -171,7 +171,7 @@ function renderSignupView(isPharmacy) {
 
           <!-- Logo Section -->
           <div class="auth-brand-row">
-            <img src="/kaira_logo.svg" alt="Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover;" />
+            <img src="kaira_logo.svg" alt="Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover;" />
             <span class="auth-brand-name">${isPharmacy ? "Kaira Pharmacy" : "Kaira Deal"}</span>
           </div>
 
@@ -494,7 +494,7 @@ export function bindAuthEvents() {
           AppState.userName = data.user.fullName;
           AppState.userRole = data.user.role;
           AppState.userId = data.user.id;
-          AppState.userAvatar = data.user.profileImage || '/kaira_logo.svg';
+          AppState.userAvatar = data.user.profileImage || 'kaira_logo.svg';
           AppState.currentModule = data.user.appModule;
           AppState.activeTab = 'dashboard';
 
@@ -502,7 +502,7 @@ export function bindAuthEvents() {
           localStorage.setItem('propdeal_user_name', data.user.fullName);
           localStorage.setItem('propdeal_user_role', data.user.role);
           localStorage.setItem('propdeal_user_id', data.user.id);
-          localStorage.setItem('propdeal_user_avatar', data.user.profileImage || '/kaira_logo.svg');
+          localStorage.setItem('propdeal_user_avatar', data.user.profileImage || 'kaira_logo.svg');
           localStorage.setItem('propdeal_app_module', data.user.appModule);
 
           window.location.hash = '';

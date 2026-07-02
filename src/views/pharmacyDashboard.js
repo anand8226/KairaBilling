@@ -173,11 +173,11 @@ export function renderPharmacyDashboard(state) {
   const formatINR = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(val);
 
   return `
-    <div class="app-container" style="animation: fade-in 0.4s ease-out">
+    <div class="app-container" style="">
       <!-- SIDEBAR -->
-      <aside class="sidebar">
+      <aside class="sidebar ${state.sidebarOpen ? 'mobile-open' : ''}" style="z-index: 100;">
         <div class="sidebar-brand" style="padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
-          <img src="/kaira_logo.svg" alt="Pharma Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 10px rgba(16,185,129,0.4);" />
+          <img src="kaira_logo.svg" alt="Pharma Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 10px rgba(16,185,129,0.4);" />
           <div class="sidebar-brand-text">
             <h1 style="font-size: 17px; font-weight: 800; color: #fff; margin: 0;">Kaira Pharmacy</h1>
             <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
@@ -227,8 +227,12 @@ export function renderPharmacyDashboard(state) {
       <!-- MAIN WORKSPACE -->
       <main class="main-panel">
         <header class="header">
-          <div style="display: flex; flex-direction: column;">
-            <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Pharmacy Console</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button type="button" class="header-icon-btn mobile-only" id="pharma-hamburger-menu-toggle" style="background:none; border:none; font-size:24px; cursor:pointer;">
+              <span>☰</span>
+            </button>
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Pharmacy Console</span>
             <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin-top: 2px;">
               ${activeTab === 'dashboard' ? 'Welcome Back, ' + state.userName : ''}
               ${activeTab === 'pos' ? 'Point of Sale (POS) Billing' : ''}
@@ -238,6 +242,7 @@ export function renderPharmacyDashboard(state) {
               ${activeTab === 'ledgers' ? 'Supplier & Customer Accounts' : ''}
               ${activeTab === 'reports' ? 'Enterprise Operations Analytics' : ''}
             </h2>
+            </div>
           </div>
           <div style="display: flex; align-items: center; gap: 16px;">
             ${activeTab === 'masters' && activeMasterSubTab === 'medicines' ? `
@@ -246,7 +251,7 @@ export function renderPharmacyDashboard(state) {
                 <input type="text" id="pharma-master-search-input" placeholder="Search medicines..." value="${masterSearchQuery}" />
               </div>
             ` : ''}
-            <img src="${state.userAvatar || '/kaira_logo.svg'}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2.5px solid var(--success-icon)" />
+            <img src="${state.userAvatar || 'kaira_logo.svg'}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2.5px solid var(--success-icon)" />
           </div>
         </header>
 
@@ -279,7 +284,7 @@ function renderPharmaView(formatINR) {
     ];
 
     return `
-      <div style="animation: fade-in 0.4s ease-out">
+      <div style="">
 
         <!-- STATS ROW 1: 3 cards -->
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px;">
@@ -428,7 +433,7 @@ function renderPharmaView(formatINR) {
     const roundOff = grandTotal - calculatedTotal;
 
     return `
-      <div style="animation: fade-in 0.4s ease-out">
+      <div style="">
         <div class="grid-2-cols" style="grid-template-columns: 1.2fr 0.8fr; gap: 20px;">
           <!-- POS Cart & Search -->
           <div class="dashboard-card" style="background: #fff; padding: 24px;">
@@ -565,7 +570,7 @@ function renderPharmaView(formatINR) {
 
   if (activeTab === 'masters') {
     return `
-      <div style="animation: fade-in 0.4s ease-out">
+      <div style="">
         <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px;">
           <button type="button" class="btn btn-masters-subtab ${activeMasterSubTab === 'medicines' ? 'btn-primary' : 'btn-secondary'}" data-sub="medicines" style="${activeMasterSubTab === 'medicines' ? 'background: var(--success-icon); color: white; border: none;' : ''}">Medicines</button>
           <button type="button" class="btn btn-masters-subtab ${activeMasterSubTab === 'suppliers' ? 'btn-primary' : 'btn-secondary'}" data-sub="suppliers" style="${activeMasterSubTab === 'suppliers' ? 'background: var(--success-icon); color: white; border: none;' : ''}">Suppliers</button>
@@ -780,7 +785,7 @@ function renderDoctorMaster(formatINR) {
    ============================================================================ */
 function renderPurchaseInwardView(formatINR) {
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div class="grid-2-cols" style="grid-template-columns: 1.2fr 0.8fr; gap: 20px;">
         <div class="dashboard-card" style="background: #fff; padding: 24px;">
           <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 14px;">Add Medicine Item to Inward Invoice</h3>
@@ -909,7 +914,7 @@ function renderExpiryView() {
   });
 
   return `
-    <div class="dashboard-card" style="background: #fff; padding: 24px; animation: fade-in 0.4s ease-out">
+    <div class="dashboard-card" style="background: #fff; padding: 24px; ">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
         <div>
           <h3 style="font-size: 15px; font-weight: 800; margin: 0;">Expiry & Near Expiry Monitoring</h3>
@@ -964,7 +969,7 @@ function renderExpiryView() {
 
 function renderLedgerView(formatINR) {
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div class="grid-2-cols" style="gap: 20px;">
         <!-- Payables -->
         <div class="dashboard-card" style="background: #fff; padding: 24px;">
@@ -1034,7 +1039,7 @@ function renderLedgerView(formatINR) {
 
 function renderReportsView(formatINR) {
   return `
-    <div class="dashboard-card" style="background: #fff; padding: 24px; animation: fade-in 0.4s ease-out">
+    <div class="dashboard-card" style="background: #fff; padding: 24px; ">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3 style="font-size: 15px; font-weight: 800; margin: 0;">Sales Audit History Log</h3>
         <button type="button" class="btn btn-secondary" id="pharma-reports-export" style="display: flex; align-items: center; gap: 6px;">
@@ -1445,12 +1450,21 @@ export function bindPharmacyEvents() {
       state.isAuthenticated = false;
       state.userName = '';
       state.userRole = 'Agent';
-      state.userAvatar = '/kaira_logo.svg';
+      state.userAvatar = 'kaira_logo.svg';
       state.currentModule = 'PropertyDealer';
       state.activeTab = 'dashboard';
       state.publicViewMode = 'portal';
 
       window.location.hash = '';
+      renderApp();
+    });
+  }
+
+  // Hamburger Menu toggle
+  const hamToggle = document.getElementById('pharma-hamburger-menu-toggle');
+  if (hamToggle) {
+    hamToggle.addEventListener('click', () => {
+      state.sidebarOpen = !state.sidebarOpen;
       renderApp();
     });
   }

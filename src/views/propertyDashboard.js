@@ -100,7 +100,7 @@ export function renderPropertyDashboard(state) {
   const stats = getStats(state);
   
   return `
-    <div class="app-container" style="animation: fade-in 0.4s ease-out">
+    <div class="app-container" style="">
       <!-- SIDEBAR -->
       ${renderSidebar(state)}
 
@@ -160,7 +160,7 @@ function renderSidebar(state) {
   return `
     <aside class="sidebar ${state.sidebarOpen ? 'mobile-open' : ''}" style="z-index: 100;">
       <div class="sidebar-brand" style="padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
-        <img src="/kaira_logo.svg" alt="Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" />
+        <img src="kaira_logo.svg" alt="Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" />
         <div class="sidebar-brand-text">
           <h1 style="font-size: 18px; font-weight: 800; letter-spacing: -0.5px; margin: 0; color: #fff;">Kaira Deal</h1>
           <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
@@ -279,7 +279,7 @@ function renderHeader(state) {
 
         <!-- Profile Settings Dropdown -->
         <div class="header-profile" id="header-profile-dropdown-trigger" style="position: relative; cursor: pointer;">
-          <img src="${state.userAvatar || '/kaira_logo.svg'}" alt="Avatar" />
+          <img src="${state.userAvatar || 'kaira_logo.svg'}" alt="Avatar" />
           <div class="header-profile-info">
             <h4>${state.userName}</h4>
             <span>${state.userRole}</span>
@@ -417,7 +417,7 @@ function renderDashboardView(state, stats) {
   }
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <!-- STATS GRID -->
       <div class="stats-grid" style="margin-bottom: 24px;">
         ${cards.map(c => `
@@ -658,7 +658,7 @@ function renderPropertiesView(state) {
   const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main);">Listed Property Assets</h2>
@@ -683,7 +683,7 @@ function renderPropertiesView(state) {
           </select>
         </div>
         <div>
-          <select id="prop-filter-status" class="card-filter-select" style="padding: 6px 12px; border-radius: 8px;">
+          <select id="prop-filter-status" class="card-filter-status" style="padding: 6px 12px; border-radius: 8px;">
             <option value="All" ${propertyStatusFilter === 'All' ? 'selected' : ''}>All Status</option>
             <option value="Available" ${propertyStatusFilter === 'Available' ? 'selected' : ''}>Available</option>
             <option value="Rented" ${propertyStatusFilter === 'Rented' ? 'selected' : ''}>Rented</option>
@@ -783,7 +783,7 @@ function renderRequirementsView(state) {
   );
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main);">Buyer Requirements Registry</h2>
@@ -840,11 +840,6 @@ function renderRequirementsView(state) {
 }
 
 /* ============================================================================
-   4. Sell Property Module / Billing View
-   ============================================================================ */
-
-
-/* ============================================================================
    5. Customers / Leads View
    ============================================================================ */
 function renderCustomersView(state) {
@@ -857,7 +852,7 @@ function renderCustomersView(state) {
   );
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main);">CRM Customer Pipeline</h2>
@@ -933,7 +928,7 @@ function renderVisitsView(state) {
   );
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main);">Site Visits Scheduler</h2>
@@ -993,7 +988,7 @@ function renderDealsLedgerView(state) {
   const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <div>
           <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main);">Sales Deals Ledger</h2>
@@ -1062,7 +1057,7 @@ function renderReportsView(state, stats) {
   const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div style="margin-bottom: 24px;">
         <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main);">Financial Reports & Audit Analytics</h2>
         <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Inspect corporate sales volumes, brokerage percentages and database margins.</p>
@@ -1147,7 +1142,7 @@ function renderAddPropertyView(state) {
   ];
 
   return `
-    <div style="animation: fade-in 0.4s ease-out; padding-bottom: 40px;">
+    <div style="padding-bottom: 40px;">
       <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 28px;">
         <button type="button" id="addprop-back-btn" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-main); cursor: pointer; font-size: 18px;">
           ➔
@@ -1302,7 +1297,7 @@ function renderAddPropertyView(state) {
    ============================================================================ */
 function renderSettingsView(state) {
   return `
-    <div style="animation: fade-in 0.4s ease-out; padding-bottom: 40px;">
+    <div style="padding-bottom: 40px;">
       <div style="background: #ffffff; border-radius: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); padding: 32px;">
         <h3 style="font-size: 16.5px; font-weight: 800; color: var(--text-main); margin-bottom: 18px;">🛠️ Kaira Deal ERP System Configuration</h3>
         
@@ -1350,11 +1345,6 @@ function renderSettingsView(state) {
 /* ============================================================================
    11. Settle Sale Agreement / Settle Deal Form Page
    ============================================================================ */
-function renderAddDealForm(state) {
-  // Not used directly because we can make a custom form view
-  // Let's implement it inside the active tab render list as 'sell_property_deal'
-}
-
 function renderSellPropertyViewForm(state) {
   const property = state.selectedPropertyToSell;
   const isManager = state.userRole === 'Manager' || state.userRole === 'Super Admin';
@@ -1383,7 +1373,7 @@ function renderSellPropertyViewForm(state) {
   const availableProps = state.properties.filter(p => p.status === 'Available');
 
   return `
-    <div style="animation: fade-in 0.4s ease-out; padding-bottom: 40px;">
+    <div style="padding-bottom: 40px;">
       
       <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 28px;">
         <button type="button" id="sellprop-back-btn" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-main); cursor: pointer; font-size: 18px;">
@@ -1601,7 +1591,7 @@ function renderSellPropertyViewList(state) {
   const availableProps = state.properties.filter(p => p.status === 'Available');
 
   return `
-    <div style="animation: fade-in 0.4s ease-out">
+    <div style="">
       <div style="margin-bottom: 24px;">
         <h2 style="font-size: 20px; font-weight: 800; color: var(--text-main);">Sell Property Module</h2>
         <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Close deals on available property listings, upload agreement contracts and manage token splits.</p>
@@ -1992,7 +1982,7 @@ function renderAvatarModal(state) {
   if (!avatarModalOpen) return '';
 
   const PRESET_AVATARS = [
-    "/kaira_logo.svg",
+    "kaira_logo.svg",
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
@@ -2132,12 +2122,11 @@ export function bindPropertyEvents() {
       localStorage.removeItem('propdeal_user_name');
       localStorage.removeItem('propdeal_user_role');
       localStorage.removeItem('propdeal_user_avatar');
-      localStorage.removeItem('propdeal_app_module');
 
       state.isAuthenticated = false;
       state.userName = '';
       state.userRole = 'Agent';
-      state.userAvatar = '/kaira_logo.svg';
+      state.userAvatar = 'kaira_logo.svg';
       state.currentModule = 'PropertyDealer';
       state.activeTab = 'dashboard';
       state.publicViewMode = 'portal';

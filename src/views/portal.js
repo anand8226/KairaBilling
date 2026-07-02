@@ -37,7 +37,7 @@ export function renderPortal(state) {
       <!-- 1. NAVIGATION BAR -->
       <nav class="saas-navbar">
         <div id="nav-logo-click" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-          <img src="/kaira_logo.svg" alt="Kaira Deal Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 12px rgba(30, 111, 253, 0.25); border: 1.5px solid var(--primary-light);" />
+          <img src="kaira_logo.svg" alt="Kaira Deal Logo" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 12px rgba(30, 111, 253, 0.25); border: 1.5px solid var(--primary-light);" />
           <span style="font-size: 18px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px;">Kaira Deal <span style="font-size: 9px; color: var(--primary); font-weight: 800; border: 1.5px solid var(--primary); padding: 1px 4px; border-radius: 4px; margin-left: 5px; letter-spacing: 0.5px;">ERP SUITE</span></span>
         </div>
 
@@ -66,7 +66,7 @@ export function renderPortal(state) {
         
         <!-- HOME VIEW -->
         ${activeTab === 'home' ? `
-          <div style="animation: fade-in 0.5s ease-out; padding: 60px 40px;">
+          <div style="padding: 60px 40px;">
             <div class="saas-hero-glow-container">
               <div class="saas-glow-circle primary"></div>
               <div class="saas-glow-circle purple"></div>
@@ -138,7 +138,7 @@ export function renderPortal(state) {
 
         <!-- FEATURES VIEW -->
         ${activeTab === 'features' ? `
-          <div style="animation: fade-in 0.4s ease-out; padding: 40px; max-width: 1100px; margin: auto;">
+          <div style="padding: 40px; max-width: 1100px; margin: auto;">
             <h2 style="font-size: 28px; font-weight: 800; text-align: center; color: var(--text-main); margin-bottom: 40px;">Robust Features Tailored For Scale</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
               <div class="dashboard-card" style="padding: 24px; background: white; border: 1px solid var(--border-color); border-radius: 12px;">
@@ -159,7 +159,7 @@ export function renderPortal(state) {
 
         <!-- MODULES VIEW -->
         ${activeTab === 'modules' ? `
-          <div style="animation: fade-in 0.4s ease-out; padding: 40px;">
+          <div style="padding: 40px;">
             <div class="saas-modules-tabs-row" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;">
               <button class="saas-module-tab-btn ${activePreview === 'sales' ? 'active' : ''}" data-preview="sales">Sales Dashboard</button>
               <button class="saas-module-tab-btn ${activePreview === 'inventory' ? 'active' : ''}" data-preview="inventory">Inventory Showcase</button>
@@ -307,7 +307,7 @@ export function renderPortal(state) {
 
         <!-- PLOTS VIEW -->
         ${activeTab === 'plots' ? `
-          <div style="animation: fade-in 0.4s ease-out; padding: 40px; max-width: 1200px; margin: auto;">
+          <div style="padding: 40px; max-width: 1200px; margin: auto;">
             <div style="background: linear-gradient(135deg, rgba(30,111,253,0.05) 0%, rgba(139,92,246,0.05) 100%); border: 1px solid var(--border-color); border-radius: 20px; padding: 40px; text-align: center; margin-bottom: 40px;">
               <span class="badge success" style="font-size: 10px; padding: 4px 12px; border-radius: 30px;">✨ PREMIUM VERIFIED LISTINGS</span>
               <h2 style="font-size: 32px; font-weight: 900; color: var(--text-main); margin-top: 15px;">Apna Dream Plot Aur Property Dhundhein</h2>
@@ -351,7 +351,7 @@ export function renderPortal(state) {
 
         <!-- ABOUT VIEW -->
         ${activeTab === 'about' ? `
-          <div style="animation: fade-in 0.4s ease-out; padding: 60px 40px; max-width: 800px; margin: auto; text-align: center;">
+          <div style="padding: 60px 40px; max-width: 800px; margin: auto; text-align: center;">
             <span class="badge info" style="font-size: 11px; padding: 4px 12px; border-radius: 20px;">Who We Are</span>
             <h2 style="font-size: 32px; font-weight: 800; color: var(--text-main); margin-top: 15px; margin-bottom: 20px;">KairaBilling & Kaira Deal</h2>
             <p style="font-size: 15.5px; color: var(--text-muted); line-height: 1.7; margin-bottom: 30px;">Kaira Deal is a leading property advisory and asset management ecosystem trusted by thousands of builders and agents. Hum registry, map aur ownership fully verify karte hain, jo legal stress door karti hai.</p>
@@ -374,7 +374,7 @@ export function renderPortal(state) {
 
         <!-- CONTACT VIEW -->
         ${activeTab === 'contact' ? `
-          <div style="animation: fade-in 0.4s ease-out; padding: 60px 40px; max-width: 480px; margin: auto;">
+          <div style="padding: 60px 40px; max-width: 480px; margin: auto;">
             <div class="dashboard-card" style="padding: 30px; background: white; border: 1px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-md);">
               <h3 style="font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 10px;">Submit Direct Inquiry</h3>
               <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 24px;">Fill details and our agent will connect via Call or WhatsApp.</p>
